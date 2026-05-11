@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Prediction SaaS</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; padding: 20px; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h1 { color: #333; text-align: center; }
+        label { font-weight: bold; display: block; margin-bottom: 8px; }
+        textarea { width: 100%; height: 250px; padding: 10px; font-family: monospace; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { background-color: #0056b3; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 15px; width: 100%; }
+        button:hover { background-color: #004494; }
+        .result-card { margin-top: 25px; padding: 20px; border-radius: 8px; display: none; }
+        .success { background-color: #e8f5e9; border-left: 5px solid #4caf50; }
+        .error { background-color: #ffebee; border-left: 5px solid #f44336; }
+        .tag { padding: 5px 10px; border-radius: 15px; font-weight: bold; display: inline-block; }
+        .tag.buy { background-color: #4caf50; color: white; }
+        .tag.ignore { background-color: #9e9e9e; color: white; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Stock Buy Signal Predictor</h1>
+    <p>Nhập dữ liệu chuỗi thời gian (20 ngày x 11 tính năng) dưới định dạng JSON để nhận dự đoán điểm mua.</p>
+    
+    <label for="inputData">Dữ liệu đầu vào (JSON Format):</label>
+    <textarea id="inputData">{
+  "features": [
+    [6000, 6200, 5800, 6100, 1200000, 6050.0, 55.2, 0.008, 0.012, 15.3, 0.05],
+    [6100, 6300, 6000, 6250, 1350000, 6080.0, 57.1, 0.010, 0.015, 15.3, 0.05],
+    [6200, 6400, 6100, 6350, 1400000, 6100.0, 59.0, 0.011, 0.014, 15.3, 0.05],
+    [6300, 6500, 6200, 6450, 1500000, 6120.0, 62.1, 0.012, 0.016, 15.3, 0.05],
+    [6400, 6600, 6300, 6550, 1600000, 6140.0, 65.5, 0.015, 0.018, 15.3, 0.05],
+    [6500, 6700, 6400, 6650, 1700000, 6160.0, 68.2, 0.018, 0.020, 15.3, 0.05],
+    [6600, 6800, 6500, 6750, 1800000, 6180.0, 70.1, 0.020, 0.022, 15.3, 0.05],
+    [6700, 6900, 6600, 6850, 1900000, 6200.0, 72.5, 0.022, 0.025, 15.3, 0.05],
+    [6800, 7000, 6700, 6950, 2000000, 6220.0, 75.0, 0.025, 0.028, 15.3, 0.05],
+    [6900, 7100, 6800, 7050, 2100000, 6240.0, 78.2, 0.028, 0.030, 15.3, 0.05],
+    [7000, 7200, 6900, 7150, 2200000, 6260.0, 80.1, 0.030, 0.032, 15.3, 0.05],
+    [7100, 7300, 7000, 7250, 2300000, 6280.0, 82.5, 0.032, 0.035, 15.3, 0.05],
+    [7200, 7400, 7100, 7350, 2400000, 6300.0, 85.0, 0.035, 0.038, 15.3, 0.05],
+    [7300, 7500, 7200, 7450, 2500000, 6320.0, 87.2, 0.038, 0.040, 15.3, 0.05],
+    [7400, 7600, 7300, 7550, 2600000, 6340.0, 89.1, 0.040, 0.042, 15.3, 0.05],
+    [7500, 7700, 7400, 7650, 2700000, 6360.0, 90.5, 0.042, 0.045, 15.3, 0.05],
+    [7600, 7800, 7500, 7750, 2800000, 6380.0, 92.0, 0.045, 0.048, 15.3, 0.05],
+    [7700, 7900, 7600, 7850, 2900000, 6400.0, 93.2, 0.048, 0.050, 15.3, 0.05],
+    [7800, 8000, 7700, 7950, 3000000, 6420.0, 94.5, 0.050, 0.052, 15.3, 0.05],
+    [7900, 8100, 7800, 8050, 3100000, 6440.0, 95.8, 0.052, 0.055, 15.3, 0.05]
+  ]
+}</textarea>
+    
+    <button id="predictBtn" onclick="makePrediction()">Phân tích & Dự đoán</button>
+
+    <div id="resultBox" class="result-card">
+        <h3 id="resultTitle">Kết quả:</h3>
+        <p><strong>Xác suất (Probability):</strong> <span id="resProb"></span></p>
+        <p><strong>Khuyến nghị (Recommendation):</strong> <span id="resRec"></span></p>
+        <p><strong>Độ tin cậy (Confidence):</strong> <span id="resConf"></span></p>
+        <p><small>Model: <span id="resModel"></span> | Threshold: <span id="resThresh"></span></small></p>
+    </div>
+</div>
+
+<script>
+    async function makePrediction() {
+        const btn = document.getElementById('predictBtn');
+        const resultBox = document.getElementById('resultBox');
+        const inputData = document.getElementById('inputData').value;
+        
+        // Reset UI
+        btn.innerText = "Đang xử lý...";
+        btn.disabled = true;
+        resultBox.style.display = 'none';
+        resultBox.className = 'result-card'; 
+
+        try {
+            // Parse JSON từ textarea
+            const requestBody = JSON.parse(inputData);
+
+            // Fetch API đến backend FastAPI của bạn (đảm bảo đang chạy ở port 8000)
+            const response = await fetch('http://localhost:8000/predict/buy', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Hiển thị kết quả thành công
+                resultBox.classList.add('success');
+                document.getElementById('resProb').innerText = (data.probability * 100).toFixed(2) + '%';
+                
+                // Format Recommendation label
+                const recSpan = document.getElementById('resRec');
+                recSpan.innerText = data.recommendation;
+                recSpan.className = data.recommendation === 'BUY' ? 'tag buy' : 'tag ignore';
+                
+                document.getElementById('resConf').innerText = data.confidence;
+                document.getElementById('resModel').innerText = data.model;
+                document.getElementById('resThresh').innerText = data.threshold_used;
+            } else {
+                // Xử lý lỗi validation (ví dụ: HTTP 422)
+                resultBox.classList.add('error');
+                document.getElementById('resProb').innerText = 'Lỗi';
+                document.getElementById('resRec').innerText = 'Dữ liệu không hợp lệ';
+                document.getElementById('resConf').innerText = JSON.stringify(data.detail);
+                document.getElementById('resModel').innerText = '-';
+                document.getElementById('resThresh').innerText = '-';
+            }
+            resultBox.style.display = 'block';
+
+        } catch (error) {
+            // Xử lý lỗi kết nối / JSON parse
+            alert("Lỗi: Không thể kết nối đến API hoặc JSON không hợp lệ.\nHãy chắc chắn server uvicorn đang chạy và JSON đúng format.\n\nChi tiết: " + error.message);
+        } finally {
+            btn.innerText = "Phân tích & Dự đoán";
+            btn.disabled = false;
+        }
+    }
+</script>
+
+</body>
+</html>
