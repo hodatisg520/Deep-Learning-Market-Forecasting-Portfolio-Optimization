@@ -233,8 +233,8 @@
         resultBox.className = 'result-card'; 
 
         const requestData = { features: getTableData() };
-        // Đổi đường dẫn này thành URL của Render sau khi bạn deploy API
-        const API_BASE_URL = 'http://localhost:8000';
+        // Đường dẫn tới API của bạn trên Render
+        const API_BASE_URL = 'https://deep-learning-market-forecasting-liyz.onrender.com';
         const endpoint = currentMode === 'buy' ? '/predict/buy' : '/predict/sell';
 
         try {
