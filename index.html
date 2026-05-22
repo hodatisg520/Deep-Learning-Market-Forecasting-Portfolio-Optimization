@@ -5,69 +5,226 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock Prediction SaaS</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; padding: 20px; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        h1 { color: #333; text-align: center; }
-        label { font-weight: bold; display: block; margin-bottom: 8px; }
-        textarea { width: 100%; height: 250px; padding: 10px; font-family: monospace; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        button { background-color: #0056b3; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; margin-top: 15px; width: 100%; }
-        button:hover { background-color: #004494; }
-        .result-card { margin-top: 25px; padding: 20px; border-radius: 8px; display: none; }
-        .success { background-color: #e8f5e9; border-left: 5px solid #4caf50; }
-        .error { background-color: #ffebee; border-left: 5px solid #f44336; }
-        .tag { padding: 5px 10px; border-radius: 15px; font-weight: bold; display: inline-block; }
-        .tag.buy { background-color: #4caf50; color: white; }
-        .tag.ignore { background-color: #9e9e9e; color: white; }
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --success-bg: #ecfdf5;
+            --success-text: #059669;
+            --error-bg: #fef2f2;
+            --error-text: #dc2626;
+        }
+        body { font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; }
+        .container { max-width: 1100px; margin: auto; }
+        .card { background: var(--card-bg); padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); }
+        h1 { text-align: center; margin-top: 0; color: #1e293b; }
+        
+        .tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid var(--border-color); }
+        .tab { padding: 12px 24px; cursor: pointer; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
+        .tab:hover { color: var(--primary); }
+        .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+        
+        .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        button { background-color: var(--primary); color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; transition: background-color 0.2s; }
+        button:hover { background-color: var(--primary-hover); }
+        button.secondary { background-color: white; color: var(--primary); border: 1px solid var(--primary); }
+        button.secondary:hover { background-color: #eff6ff; }
+        button:disabled { opacity: 0.7; cursor: not-allowed; }
+        
+        .table-container { overflow-x: auto; margin-bottom: 20px; border: 1px solid var(--border-color); border-radius: 8px; max-height: 400px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: right; font-variant-numeric: tabular-nums; }
+        th, td { padding: 6px 10px; border-bottom: 1px solid var(--border-color); }
+        th { background-color: #f1f5f9; font-weight: 600; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; text-align: right; position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 0 var(--border-color); }
+        td input { width: 70px; padding: 4px; border: 1px solid transparent; border-radius: 4px; text-align: right; font-family: inherit; font-size: 0.9rem; }
+        td input:focus { border-color: var(--primary); outline: none; background: #fff; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2); }
+        tr:hover { background-color: #f8fafc; }
+        td:first-child, th:first-child { text-align: center; background-color: #f1f5f9; font-weight: bold; width: 40px; position: sticky; left: 0; z-index: 5; box-shadow: 1px 0 0 var(--border-color); }
+        th:first-child { z-index: 15; }
+
+        .result-card { margin-top: 25px; padding: 20px; border-radius: 8px; display: none; border: 1px solid; }
+        .result-card.success { background-color: var(--success-bg); border-color: #a7f3d0; }
+        .result-card.error { background-color: var(--error-bg); border-color: #fecaca; }
+        .tag { padding: 4px 12px; border-radius: 9999px; font-weight: bold; font-size: 0.9rem; display: inline-block; }
+        .tag.buy, .tag.sell { background-color: var(--success-text); color: white; }
+        .tag.ignore, .tag.hold { background-color: var(--text-muted); color: white; }
+        
+        .prediction-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
+        .stat-box { background: rgba(255,255,255,0.6); padding: 15px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .stat-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; font-weight: 600; }
+        .stat-value { font-size: 1.5rem; font-weight: bold; color: var(--text-main); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Stock Buy Signal Predictor</h1>
-    <p>Nhập dữ liệu chuỗi thời gian (20 ngày x 11 tính năng) dưới định dạng JSON để nhận dự đoán điểm mua.</p>
-    
-    <label for="inputData">Dữ liệu đầu vào (JSON Format):</label>
-    <textarea id="inputData">{
-  "features": [
-    [6000, 6200, 5800, 6100, 1200000, 6050.0, 55.2, 0.008, 0.012, 15.3, 0.05],
-    [6100, 6300, 6000, 6250, 1350000, 6080.0, 57.1, 0.010, 0.015, 15.3, 0.05],
-    [6200, 6400, 6100, 6350, 1400000, 6100.0, 59.0, 0.011, 0.014, 15.3, 0.05],
-    [6300, 6500, 6200, 6450, 1500000, 6120.0, 62.1, 0.012, 0.016, 15.3, 0.05],
-    [6400, 6600, 6300, 6550, 1600000, 6140.0, 65.5, 0.015, 0.018, 15.3, 0.05],
-    [6500, 6700, 6400, 6650, 1700000, 6160.0, 68.2, 0.018, 0.020, 15.3, 0.05],
-    [6600, 6800, 6500, 6750, 1800000, 6180.0, 70.1, 0.020, 0.022, 15.3, 0.05],
-    [6700, 6900, 6600, 6850, 1900000, 6200.0, 72.5, 0.022, 0.025, 15.3, 0.05],
-    [6800, 7000, 6700, 6950, 2000000, 6220.0, 75.0, 0.025, 0.028, 15.3, 0.05],
-    [6900, 7100, 6800, 7050, 2100000, 6240.0, 78.2, 0.028, 0.030, 15.3, 0.05],
-    [7000, 7200, 6900, 7150, 2200000, 6260.0, 80.1, 0.030, 0.032, 15.3, 0.05],
-    [7100, 7300, 7000, 7250, 2300000, 6280.0, 82.5, 0.032, 0.035, 15.3, 0.05],
-    [7200, 7400, 7100, 7350, 2400000, 6300.0, 85.0, 0.035, 0.038, 15.3, 0.05],
-    [7300, 7500, 7200, 7450, 2500000, 6320.0, 87.2, 0.038, 0.040, 15.3, 0.05],
-    [7400, 7600, 7300, 7550, 2600000, 6340.0, 89.1, 0.040, 0.042, 15.3, 0.05],
-    [7500, 7700, 7400, 7650, 2700000, 6360.0, 90.5, 0.042, 0.045, 15.3, 0.05],
-    [7600, 7800, 7500, 7750, 2800000, 6380.0, 92.0, 0.045, 0.048, 15.3, 0.05],
-    [7700, 7900, 7600, 7850, 2900000, 6400.0, 93.2, 0.048, 0.050, 15.3, 0.05],
-    [7800, 8000, 7700, 7950, 3000000, 6420.0, 94.5, 0.050, 0.052, 15.3, 0.05],
-    [7900, 8100, 7800, 8050, 3100000, 6440.0, 95.8, 0.052, 0.055, 15.3, 0.05]
-  ]
-}</textarea>
-    
-    <button id="predictBtn" onclick="makePrediction()">Phân tích & Dự đoán</button>
+    <div class="card">
+        <h1>Stock Prediction SaaS</h1>
+        <p style="text-align: center; color: var(--text-muted); margin-bottom: 30px;">Nhập dữ liệu 20 phiên giao dịch gần nhất để dự đoán tín hiệu giao dịch.</p>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('buy')" id="tab-buy">Buy Signal Model</div>
+            <div class="tab" onclick="switchTab('sell')" id="tab-sell">Sell Signal Model</div>
+        </div>
 
-    <div id="resultBox" class="result-card">
-        <h3 id="resultTitle">Kết quả:</h3>
-        <p><strong>Xác suất (Probability):</strong> <span id="resProb"></span></p>
-        <p><strong>Khuyến nghị (Recommendation):</strong> <span id="resRec"></span></p>
-        <p><strong>Độ tin cậy (Confidence):</strong> <span id="resConf"></span></p>
-        <p><small>Model: <span id="resModel"></span> | Threshold: <span id="resThresh"></span></small></p>
+        <div class="controls">
+            <button class="secondary" onclick="loadSampleData()">Tải dữ liệu mẫu (Sample Data)</button>
+            <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 500;" id="table-info">Mô hình Mua (11 đặc trưng)</span>
+        </div>
+
+        <div class="table-container">
+            <table id="dataTable">
+                <thead id="dataHead">
+                    <!-- Generated via JS -->
+                </thead>
+                <tbody id="dataBody">
+                    <!-- Generated via JS -->
+                </tbody>
+            </table>
+        </div>
+        
+        <button id="predictBtn" onclick="makePrediction()" style="width: 100%; font-size: 1.1rem; padding: 15px; margin-top: 10px;">Dự Đoán Kết Quả</button>
+
+        <div id="resultBox" class="result-card">
+            <h3 style="margin-top: 0; margin-bottom: 15px; color: #1e293b;" id="resultTitle">Kết quả phân tích:</h3>
+            <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                <span class="stat-label" style="margin-bottom: 0;">Khuyến nghị:</span>
+                <span id="resRec" class="tag"></span>
+            </div>
+            
+            <div class="prediction-details">
+                <div class="stat-box">
+                    <div class="stat-label">Xác suất (Probability)</div>
+                    <div class="stat-value" id="resProb">--</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Độ tin cậy (Confidence)</div>
+                    <div class="stat-value" id="resConf">--</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Ngưỡng (Threshold)</div>
+                    <div class="stat-value" id="resThresh" style="font-size: 1.25rem;">--</div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
+    // Định nghĩa các cột đặc trưng theo đúng API /predict/buy và /predict/sell
+    const schemas = {
+        buy: [
+            "Open", "High", "Low", "Close", "Volume",
+            "SMA_14", "RSI_14", "Dist_to_SMA",
+            "Log_Return", "priceToEarning", "cashDividendPercentage"
+        ],
+        sell: [
+            "Open", "High", "Low", "Volume",
+            "Log_Return", "Volatility_14", "SMA_14", "Dist_to_SMA",
+            "RSI_14", "Dist_to_UB", "BB_Percent_B",
+            "priceToEarning", "cashDividendPercentage"
+        ]
+    };
+
+    let currentMode = 'buy';
+
+    function switchTab(mode) {
+        currentMode = mode;
+        document.getElementById('tab-buy').classList.toggle('active', mode === 'buy');
+        document.getElementById('tab-sell').classList.toggle('active', mode === 'sell');
+        
+        document.getElementById('table-info').innerText = mode === 'buy' ? 
+            'Mô hình Mua (11 đặc trưng)' : 'Mô hình Bán (13 đặc trưng)';
+        
+        document.getElementById('resultBox').style.display = 'none';
+        
+        renderTable();
+        loadSampleData();
+    }
+
+    function renderTable() {
+        const columns = schemas[currentMode];
+        const thead = document.getElementById('dataHead');
+        const tbody = document.getElementById('dataBody');
+        
+        // Header
+        let headHtml = '<tr><th>Day</th>';
+        columns.forEach(col => {
+            headHtml += `<th>${col.replace(/_/g, ' ')}</th>`;
+        });
+        headHtml += '</tr>';
+        thead.innerHTML = headHtml;
+
+        // Body (20 rows)
+        let bodyHtml = '';
+        for (let i = 1; i <= 20; i++) {
+            bodyHtml += `<tr><td>${i}</td>`;
+            columns.forEach((col, j) => {
+                bodyHtml += `<td><input type="number" step="any" id="cell-${i-1}-${j}" value="0"></td>`;
+            });
+            bodyHtml += '</tr>';
+        }
+        tbody.innerHTML = bodyHtml;
+    }
+
+    function loadSampleData() {
+        const columns = schemas[currentMode];
+        let baseOpen = 6000;
+        
+        for (let i = 0; i < 20; i++) {
+            baseOpen += (Math.random() - 0.4) * 100; // random walk
+            
+            for (let j = 0; j < columns.length; j++) {
+                const colName = columns[j];
+                let val = 0;
+                
+                if (colName === "Open" || colName === "Close" || colName === "SMA_14" || colName === "High" || colName === "Low") {
+                    val = baseOpen + (Math.random() - 0.5) * 50;
+                    if(colName === "High") val += 50;
+                    if(colName === "Low") val -= 50;
+                } else if (colName === "Volume") {
+                    val = Math.floor(1000000 + Math.random() * 500000);
+                } else if (colName === "RSI_14") {
+                    val = 40 + Math.random() * 40;
+                } else if (colName === "Log_Return" || colName === "Volatility_14" || colName === "Dist_to_SMA" || colName === "Dist_to_UB") {
+                    val = (Math.random() - 0.5) * 0.05;
+                } else if (colName === "BB_Percent_B") {
+                    val = Math.random();
+                } else if (colName === "priceToEarning") {
+                    val = 15 + Math.random() * 2;
+                } else if (colName === "cashDividendPercentage") {
+                    val = 0.05;
+                }
+                
+                // Format với số thập phân hợp lý
+                let valStr = val.toFixed(4);
+                if (val > 1000) valStr = val.toFixed(1);
+                
+                document.getElementById(`cell-${i}-${j}`).value = valStr;
+            }
+        }
+    }
+
+    function getTableData() {
+        const columns = schemas[currentMode];
+        const data = [];
+        for (let i = 0; i < 20; i++) {
+            const row = [];
+            for (let j = 0; j < columns.length; j++) {
+                const val = parseFloat(document.getElementById(`cell-${i}-${j}`).value) || 0;
+                row.push(val);
+            }
+            data.push(row);
+        }
+        return data;
+    }
+
     async function makePrediction() {
         const btn = document.getElementById('predictBtn');
         const resultBox = document.getElementById('resultBox');
-        const inputData = document.getElementById('inputData').value;
         
         // Reset UI
         btn.innerText = "Đang xử lý...";
@@ -75,53 +232,51 @@
         resultBox.style.display = 'none';
         resultBox.className = 'result-card'; 
 
-        try {
-            // Parse JSON từ textarea
-            const requestBody = JSON.parse(inputData);
+        const requestData = { features: getTableData() };
+        // Đổi đường dẫn này thành URL của Render sau khi bạn deploy API
+        const API_BASE_URL = 'http://localhost:8000';
+        const endpoint = currentMode === 'buy' ? '/predict/buy' : '/predict/sell';
 
-            // Fetch API đến backend FastAPI của bạn (đảm bảo đang chạy ở port 8000)
-            const response = await fetch('http://localhost:8000/predict/buy', {
+        try {
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(requestBody)
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestData)
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                // Hiển thị kết quả thành công
                 resultBox.classList.add('success');
                 document.getElementById('resProb').innerText = (data.probability * 100).toFixed(2) + '%';
                 
-                // Format Recommendation label
                 const recSpan = document.getElementById('resRec');
                 recSpan.innerText = data.recommendation;
-                recSpan.className = data.recommendation === 'BUY' ? 'tag buy' : 'tag ignore';
+                recSpan.className = `tag ${data.recommendation.toLowerCase()}`;
                 
                 document.getElementById('resConf').innerText = data.confidence;
-                document.getElementById('resModel').innerText = data.model;
                 document.getElementById('resThresh').innerText = data.threshold_used;
             } else {
-                // Xử lý lỗi validation (ví dụ: HTTP 422)
                 resultBox.classList.add('error');
                 document.getElementById('resProb').innerText = 'Lỗi';
                 document.getElementById('resRec').innerText = 'Dữ liệu không hợp lệ';
-                document.getElementById('resConf').innerText = JSON.stringify(data.detail);
-                document.getElementById('resModel').innerText = '-';
-                document.getElementById('resThresh').innerText = '-';
+                document.getElementById('resRec').className = 'tag hold';
+                document.getElementById('resConf').innerText = data.detail ? JSON.stringify(data.detail) : 'Unknown error';
+                document.getElementById('resThresh').innerText = '--';
             }
             resultBox.style.display = 'block';
 
         } catch (error) {
-            // Xử lý lỗi kết nối / JSON parse
-            alert("Lỗi: Không thể kết nối đến API hoặc JSON không hợp lệ.\nHãy chắc chắn server uvicorn đang chạy và JSON đúng format.\n\nChi tiết: " + error.message);
+            alert(`Lỗi kết nối: ${error.message}\nHãy chắc chắn backend API đang chạy tại port 8000 (uvicorn main:app --reload)`);
         } finally {
-            btn.innerText = "Phân tích & Dự đoán";
+            btn.innerText = "Dự Đoán Kết Quả";
             btn.disabled = false;
         }
     }
+
+    // Initialize application
+    renderTable();
+    loadSampleData();
 </script>
 
 </body>
