@@ -18,7 +18,7 @@
 
 **AlphaQuant** is a comprehensive, end-to-end quantitative finance project that leverages Deep Learning (LSTM networks) to analyze, forecast, and trade on both the **Nasdaq (US)** and **VN-Index (Vietnam)** stock markets. 
 
-Developed as the capstone project for *CS313 - Deep Learning for Artificial Intelligence*, this system goes beyond simple price prediction. It encompasses a full quantitative trading pipeline: from raw time-series data processing and advanced feature engineering to AI-driven buy/sell signal classification, rigorous risk management, mathematical portfolio optimization (Markowitz), and finally, a production-ready REST API deployment with a SaaS web interface.
+Developed as the final project for *CS313 - Deep Learning for Artificial Intelligence*, this system goes beyond simple price prediction. It encompasses a full quantitative trading pipeline: from raw time-series data processing and advanced feature engineering to AI-driven buy/sell signal classification, rigorous risk management, mathematical portfolio optimization (Markowitz), and finally, a production-ready REST API deployment with a SaaS web interface.
 
 This project demonstrates strong capabilities in **Data Science, Deep Learning, Quantitative Finance, and Machine Learning Operations (MLOps)**.
 
