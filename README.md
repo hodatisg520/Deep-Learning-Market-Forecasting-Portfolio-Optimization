@@ -1,121 +1,133 @@
-# DL4AI-240112-project
+<div align="center">
+  
+# AlphaQuant: Deep Learning for Market Forecasting & Portfolio Optimization
 
-## Giới thiệu dự án (Project Overview)
+**An End-to-End AI-Driven Quantitative Trading and Portfolio Management System**
 
-Dự án này là bài tập lớn kết thúc học phần **CS313 - Deep Learning for Artificial Intelligence (Spring 2026)**. Mục tiêu chính là làm quen với dữ liệu chuỗi thời gian (time-series data) và ứng dụng các kỹ thuật học sâu (Deep Learning), cụ thể là mô hình **LSTM (Long Short-Term Memory)**, để phân tích và dự báo thị trường chứng khoán Nasdaq và Việt Nam .
+[![Python 3.11](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
+[![TensorFlow](https://img.shields.io/badge/TensorFlow-2.16-FF6F00.svg?logo=tensorflow)](https://www.tensorflow.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688.svg?logo=fastapi)](https://fastapi.tiangolo.com/)
+[![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-Machine_Learning-F7931E.svg?logo=scikit-learn)](https://scikit-learn.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Dự án bao gồm một quy trình toàn diện từ tiền xử lý dữ liệu, kỹ thuật đặc trưng (feature engineering), xây dựng mô hình dự báo giá, nhận diện tín hiệu giao dịch, cho đến quản trị rủi ro và tối ưu hóa danh mục đầu tư .
+</div>
 
-## Công nghệ sử dụng (Technology Stack)
+---
 
-**Ngôn ngữ lập trình:** Python.
+## Project Overview
 
-**Thư viện học sâu:** TensorFlow / Keras.
+**AlphaQuant** is a comprehensive, end-to-end quantitative finance project that leverages Deep Learning (LSTM networks) to analyze, forecast, and trade on both the **Nasdaq (US)** and **VN-Index (Vietnam)** stock markets. 
 
-**Phân tích dữ liệu:** Pandas, Numpy, Scikit-learn.
+Developed as the capstone project for *CS313 - Deep Learning for Artificial Intelligence*, this system goes beyond simple price prediction. It encompasses a full quantitative trading pipeline: from raw time-series data processing and advanced feature engineering to AI-driven buy/sell signal classification, rigorous risk management, mathematical portfolio optimization (Markowitz), and finally, a production-ready REST API deployment with a SaaS web interface.
 
-**Trực quan hóa:** Matplotlib, Seaborn.
+This project demonstrates strong capabilities in **Data Science, Deep Learning, Quantitative Finance, and Machine Learning Operations (MLOps)**.
 
-**Tối ưu hóa danh mục:** PyPortfolioOpt .
- 
-**Môi trường:** Google Colab.
+---
 
+## Key Features & Methodologies
 
-## Cấu trúc các tác vụ (Project Tasks)
+### 1. Multi-Horizon Stock Price Forecasting (Regression)
+- **Multi-Feature Inputs:** Utilizes OHLCV data combined with macroeconomic indicators.
+- **Architectures:** Custom LSTM neural networks designed for non-stationary financial time-series data.
+- **Forecasting Scenarios:** 
+  - Next-day prediction (Baseline).
+  - k-day-ahead forecasting (k=3, k=7).
+  - Consecutive k-day sequence forecasting (predicting the full trajectory of the next k days).
+- **Performance:** Achieved highly accurate price tracking with a Mean Absolute Percentage Error (MAPE) as low as **1.93%** on Vietnamese stocks (SAM).
 
-Task 1: Dự báo giá cổ phiếu Nasdaq 
+### 2. Algorithmic Trading Signal Detection (Classification)
+- **Technical Indicators Engineering:** Engineered complex features including Log Returns, 14-day Rolling Volatility, SMA, RSI, and Bollinger Bands.
+- **Fundamental Integration:** Combined technical indicators with fundamental metrics (P/E ratio, Dividend Yield).
+- **Binary Classification:** Trained separate, optimized LSTM models to predict highly profitable **BUY** entry points and risk-mitigating **SELL** exit signals.
+- **Class Imbalance Handling:** Implemented custom class weights to penalize false negatives in buying opportunities.
 
-**1.1 Mở rộng đa đặc trưng:** Sử dụng nhiều đặc trưng đầu vào (High, Low, Open, Close, Adj Close, Volume) thay vì chỉ giá Open để dự báo.
+### 3. AI-Driven Portfolio Construction & Risk Management
+- **Composite Risk Scoring:** Developed a proprietary risk metric combining AI Sell probabilities (50%), Volatility (30%), and Technical Risk (20%).
+- **Automated Filtering:** Systematically filters out high-risk assets from a universe of Vietnamese stocks.
+- **Markowitz Efficient Frontier:** Utilized `PyPortfolioOpt` with Ledoit-Wolf shrinkage to calculate the optimal capital allocation, maximizing the theoretical Sharpe Ratio (0.13) and achieving an expected annual return of **7.3%** under strict risk constraints.
 
-**1.2 Dự báo ngày thứ k:** Dự báo giá cổ phiếu tại ngày thứ 3 hoặc ngày thứ 7 trong tương lai.
+### 4. SaaS Deployment & MLOps (Task 5)
+- **REST API:** Deployed the trained LSTM Buy-Signal model using **FastAPI** and **Uvicorn**, ensuring low-latency inference.
+- **Data Validation:** Enforced strict JSON schema validation for 20-day time-series inputs using **Pydantic**.
+- **Web Interface:** Built a lightweight, zero-dependency HTML5/Vanilla JS frontend that communicates directly with the FastAPI backend to provide real-time trading recommendations to end-users.
 
-**1.3 Dự báo chuỗi k ngày:** Dự báo liên tiếp giá cổ phiếu cho k ngày tiếp theo.
+---
 
-Task 2: Dự báo giá cổ phiếu Việt Nam 
+## Technology Stack
 
-* Tương tự Task 1 nhưng áp dụng trên dữ liệu thị trường Việt Nam (mã SAM-VNINDEX), kết hợp xử lý dữ liệu đặc thù như sắp xếp theo trình tự thời gian và chuẩn hóa dữ liệu .
+| Category | Technologies |
+|---|---|
+| **Deep Learning** | TensorFlow, Keras, LSTM |
+| **Data Processing & ML** | Pandas, NumPy, Scikit-learn |
+| **Quantitative Finance** | PyPortfolioOpt, Technical Analysis (RSI, Bollinger Bands, SMA) |
+| **Backend & API** | FastAPI, Uvicorn, Pydantic, Python 3.11 |
+| **Frontend UI** | HTML5, CSS3, Vanilla JavaScript (ES6) |
+| **Environment** | Google Colab, Jupyter Notebook, Docker (Optional) |
 
+---
 
+## Repository Structure
 
-Task 3: Nhận diện tín hiệu giao dịch 
-
-**3.1 Tín hiệu Mua (Buying Signal):** Xây dựng mô hình phân loại nhị phân để xác định thời điểm mua tiềm năng dựa trên xác suất sinh lời .
-
-**3.2 Tín hiệu Bán (Selling Signal):** Xác định các điểm thoát lệnh dựa trên các chỉ báo kỹ thuật như Bollinger Bands và lợi nhuận mục tiêu .
-
-Task 4: Quản trị danh mục và rủi ro 
-
-**4.1 Lựa chọn cổ phiếu:** Đánh giá và chọn lọc các mã cổ phiếu tiềm năng dựa trên xác suất dự báo của mô hình LSTM .
-
-**4.2 Quản trị rủi ro:** Tính toán điểm rủi ro tổng hợp (Composite Risk Score) kết hợp từ xác suất bán của AI, độ biến động và các chỉ báo kỹ thuật .
-
-**4.3 Tối ưu hóa danh mục:** Sử dụng mô hình Markowitz (Efficient Frontier) để phân bổ vốn tối ưu cho các cổ phiếu vượt qua bộ lọc rủi ro .
-
-
-Task 5: Triển khai mô hình (Extra Credit) 
-
-* Xuất mô hình dưới dạng SavedModel thân thiện với CPU để triển khai qua API và chuẩn bị dữ liệu cho Dashboard SaaS .
-
-
-
-## Cấu trúc thư mục dữ liệu (Data Structure)
-
-Mã nguồn yêu cầu cấu trúc thư mục trên Google Drive như sau :
-
-```
-/content/drive/MyDrive/data-vn-20230228/
-├── stock-historical-data/   # Chứa file CSV lịch sử giá cổ phiếu
-├── financial-ratio/         # Chỉ số tài chính (P/E, ROE, ROA)
-├── dividend-history/        # Lịch sử chi trả cổ tức
-├── companies.csv            # Danh sách công ty
-└── ticker-overview.csv      # Tổng quan về các mã chứng khoán
-
-```
-
-## Hướng dẫn cài đặt và chạy (Installation & Usage)
-
-1. **Clone repository:**
-```bash
-git clone https://github.com/hodatisg520/DL4AI-240112-project.git
-
-```
-
-
-2. 
-**Môi trường chạy:** Mở file `Final_project_DL4AI.ipynb` bằng **Google Colab**.
-
-
-3. **Kết nối dữ liệu:**
-* Tải bộ dữ liệu lên Google Drive cá nhân.
-* Thay đổi biến `base_path` trong notebook để trỏ đúng vào thư mục chứa dữ liệu của bạn.
-
-
-
-
-4. 
-**Cài đặt thư viện bổ sung:** Chạy lệnh sau trong notebook để cài đặt thư viện tối ưu hóa danh mục:
-
-
-```python
-!pip install PyPortfolioOpt
-
+```text
+AlphaQuant/
+├── data/                             # (To be mounted via Google Drive)
+│   ├── stock-historical-data/        # Raw CSV OHLCV data
+│   ├── financial-ratio/              # P/E, ROE, ROA datasets
+│   └── ticker-overview.csv           # Company metadata
+├── models/
+│   └── buy_model/                    # Exported TF SavedModel for API deployment
+├── app/
+│   └── main.py                       # FastAPI application and inference endpoints
+├── index.html                        # SaaS Web Interface (Frontend)
+├── Final_project_DL4AI.ipynb         # Main Jupyter Notebook (Training & Evaluation)
+├── 240112-project-report.pdf         # Comprehensive Academic Project Report
+├── requirements.txt                  # Python dependencies
+└── README.md                         # Project documentation
 ```
 
+---
 
-5. **Chạy Notebook:** Chọn `Runtime` -> `Run all` để thực thi toàn bộ quy trình từ đầu đến cuối.
+## Highlighted Results
 
-## Kết quả và Quan sát (Findings)
+- **Superior Sequence Forecasting:** Proved that predicting a sequence of k days yields a richer gradient signal and lower error (MAPE: 2.85%) than predicting a single k-th day independently.
+- **Robust Risk Mitigation:** The automated portfolio construction successfully identified and excluded 7 out of 10 stocks exhibiting high downside risk based on the AI Composite Score.
+- **Seamless Deployment:** The production API successfully processes 220 data points (20 days x 11 features) in milliseconds, returning actionable probability scores and confidence intervals.
 
-* Mô hình LSTM cho kết quả dự báo giá khá bám sát thực tế với các chỉ số MAE và MAPE ở mức thấp cho thị trường Việt Nam .
+---
 
+## Getting Started
 
-* Việc kết hợp Phân tích Kỹ thuật (Technical Analysis) và Phân tích Cơ bản (Fundamental Ratios) giúp cải thiện đáng kể khả năng nhận diện tín hiệu giao dịch .
+### 1. Training & Evaluation (Google Colab)
+1. Clone this repository to your local machine or Google Drive.
+2. Upload the required datasets to your Google Drive following the structure in `Data Structure`.
+3. Open `Final_project_DL4AI.ipynb` via Google Colab.
+4. Update the `base_path` variable to point to your data directory.
+5. Install optimization dependencies: `!pip install PyPortfolioOpt`.
+6. Run all cells to execute the pipeline from data preprocessing to portfolio optimization.
 
+### 2. Running the REST API & Web Interface Locally
+1. Create a Python 3.11 virtual environment:
+   ```bash
+   conda create -n alphaquant python=3.11 -y
+   conda activate alphaquant
+   ```
+2. Install requirements:
+   ```bash
+   pip install fastapi uvicorn numpy tensorflow pydantic
+   ```
+3. Start the backend server:
+   ```bash
+   uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+   ```
+4. **Launch the UI:** Double-click `index.html` in your browser. Paste your JSON formatted time-series data and click *Analyze & Predict*.
 
+---
 
-## Tác giả (Author)
+## Author
 
-* **Họ và tên:** [Nguyen Hong Dang]
-* **Mã số sinh viên:** 240112 
-* 
-**Lớp:** CS313 Spring 2026
+**Nguyen Hong Dang**
+- **Student ID:** 240112
+- **Course:** CS313 - Deep Learning for Artificial Intelligence (Spring 2026)
+- **Contact/LinkedIn:** *(Add your link here)*
+
+> *This project was developed for academic purposes. The financial models and predictions provided are for educational demonstration and should not be considered financial advice.*
