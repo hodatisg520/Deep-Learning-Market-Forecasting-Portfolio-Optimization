@@ -128,6 +128,5 @@ AlphaQuant/
 **Nguyen Hong Dang**
 - **Student ID:** 240112
 - **Course:** CS313 - Deep Learning for Artificial Intelligence (Spring 2026)
-- **Contact/LinkedIn:** *(Add your link here)*
 
 > *This project was developed for academic purposes. The financial models and predictions provided are for educational demonstration and should not be considered financial advice.*
