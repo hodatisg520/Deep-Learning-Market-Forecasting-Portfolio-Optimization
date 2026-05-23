@@ -14,29 +14,29 @@
 
 ---
 
-## 📖 Project Overview
+##  Project Overview
 
 **AlphaQuant** is a comprehensive quantitative finance project that leverages Deep Learning (LSTM networks) to analyze, forecast, and trade on both the **Nasdaq (US)** and **VN-Index (Vietnam)** stock markets. 
 
 Developed for *CS313 - Deep Learning for Artificial Intelligence*, this system goes beyond notebook-level price prediction. It encompasses a full MLOps pipeline: from raw time-series data processing to API deployment, a web-based SaaS interface, and an automated data engineering workflow.
 
-🌐 **Live Web Application (SaaS):** [AlphaQuant Prediction Portal](https://hodatisg520.github.io/Deep-Learning-Market-Forecasting-Portfolio-Optimization/)
+ **Live Web Application (SaaS):** [AlphaQuant Prediction Portal](https://hodatisg520.github.io/Deep-Learning-Market-Forecasting-Portfolio-Optimization/)
 
 ---
 
-## 🚀 Key Milestones & Tasks
+##  Key Milestones & Tasks
 
-### 🧠 Task 1-4: Core AI Models & Portfolio Optimization
+###  Task 1-4: Core AI Models & Portfolio Optimization
 - **Multi-Horizon Forecasting:** Custom LSTM neural networks for 1-day, 3-day, and 7-day ahead predictions with MAPE as low as 1.93%.
 - **Trading Signal Detection:** Binary classification models predicting highly profitable **BUY** entry points and risk-mitigating **SELL** exits based on complex technical indicators (SMA, RSI, Volatility).
 - **Risk Management & Portfolio:** Automated Markowitz Efficient Frontier filtering using PyPortfolioOpt to achieve optimal expected annual returns under strict risk constraints.
 
-### 🌐 Task 5.1 & 5.2: Model Deployment & SaaS Application (Extra Credit)
+###  Task 5.1 & 5.2: Model Deployment & SaaS Application (Extra Credit)
 Instead of keeping the model in a Jupyter Notebook, the system has been fully deployed to the cloud:
 - **Task 5.1 (API Deployment):** The trained LSTM Buy/Sell model is served as a high-performance **REST API** using **FastAPI** and **Uvicorn**, deployed on **Render**. It processes live 20-day time-series data and returns JSON predictions instantly.
 - **Task 5.2 (SaaS UI):** A lightweight, responsive web application was built and hosted publicly on **GitHub Pages**. Users can interactively test the model by entering stock indicators or loading sample data, receiving real-time Buy/Hold/Sell recommendations.
 
-### ⚙️ Task 5.3: AI Engineering Workflow (Extra Credit)
+###  Task 5.3: AI Engineering Workflow (Extra Credit)
 To ensure the model receives fresh data automatically, a modern **Data Engineering Pipeline (ELT)** was designed using industry-standard tools:
 - **Airbyte:** Automates data ingestion from Nasdaq/Vietnam APIs into the database.
 - **dbt (Data Build Tool):** Transforms raw data directly in SQL, computing critical technical indicators (SMA, RSI) efficiently.
@@ -46,7 +46,7 @@ To ensure the model receives fresh data automatically, a modern **Data Engineeri
 
 ---
 
-## 🛠️ Repository Structure
+##  Repository Structure
 
 ```text
 AlphaQuant/
@@ -66,11 +66,11 @@ AlphaQuant/
 
 ---
 
-## 💻 Getting Started (Setup Instructions)
+##  Getting Started (Setup Instructions)
 
 ### 1. View the Live SaaS Demo
 Simply visit the public GitHub Pages link to use the AI model from your browser:
-👉 [**AlphaQuant Live Demo**](https://hodatisg520.github.io/Deep-Learning-Market-Forecasting-Portfolio-Optimization/)
+ [**AlphaQuant Live Demo**](https://hodatisg520.github.io/Deep-Learning-Market-Forecasting-Portfolio-Optimization/)
 
 ### 2. Running the API Locally (Backend)
 If you want to run the FastAPI backend on your own machine:
@@ -93,7 +93,7 @@ To view the Deep Learning experiments:
 
 ---
 
-## 👨‍🎓 Author
+##  Author
 **Nguyen Hong Dang**
 - **Course:** CS313 - Deep Learning for Artificial Intelligence (Spring 2026)
 - *Disclaimer: This project was developed for academic purposes. The financial predictions provided are for educational demonstration and should not be considered financial advice.*
