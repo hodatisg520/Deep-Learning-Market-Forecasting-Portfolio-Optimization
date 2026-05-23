@@ -1,4 +1,18 @@
+<div align="center">
+  
 # AlphaQuant: Deep Learning for Market Forecasting and Portfolio Optimization
+
+**An End-to-End AI-Driven Quantitative Trading and Portfolio Management System**
+
+[![Python 3.11](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
+[![TensorFlow](https://img.shields.io/badge/TensorFlow-2.16-FF6F00.svg?logo=tensorflow)](https://www.tensorflow.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688.svg?logo=fastapi)](https://fastapi.tiangolo.com/)
+[![Airflow](https://img.shields.io/badge/Airflow-2.9-017CEE.svg?logo=apache-airflow)](https://airflow.apache.org/)
+[![dbt](https://img.shields.io/badge/dbt-1.8-FF694B.svg?logo=dbt)](https://www.getdbt.com/)
+
+</div>
+
+---
 
 ## Project Overview
 
@@ -63,26 +77,33 @@ AlphaQuant/
 
 ## Setup and Execution Guidelines
 
-### Executing the Production API Locally
+### 1. Accessing the Live SaaS Application (Production)
+The system has been fully deployed to the cloud. You do not need to install any local dependencies to use the prediction model.
+1. Navigate to the public SaaS portal: **[AlphaQuant Prediction Web Application](https://hodatisg520.github.io/Deep-Learning-Market-Forecasting-Portfolio-Optimization/)**
+2. Click the "Tải dữ liệu mẫu" (Load Sample Data) button to populate the matrix with 20 days of historical financial indicators.
+3. Click "Dự Đoán Kết Quả" (Predict Result) to send the payload to the cloud-hosted FastAPI inference engine.
+4. The system will asynchronously return the predicted probability and trading recommendation (BUY/IGNORE/SELL).
+
+### 2. Executing the Production API Locally (Development)
+If you wish to test the FastAPI backend on your local machine instead of the cloud deployment:
 1. Initialize a Python 3.11 virtual environment.
 2. Install the required dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-3. Initialize the ASGI server:
+3. Initialize the ASGI server via Uvicorn:
    ```bash
-   uvicorn app.main:app --host 0.0.0.0 --port 8000
+   uvicorn main:app --host 0.0.0.0 --port 8000 --reload
    ```
-4. Access the API documentation at `http://localhost:8000/docs`.
+4. Access the auto-generated Swagger UI API documentation at `http://localhost:8000/docs` to test endpoints manually.
+5. To connect the local UI to your local API, open `index.html` in your browser and ensure the `API_BASE_URL` variable inside the JavaScript code points to `http://localhost:8000`.
 
-### Launching the SaaS Interface
-With the backend server running locally or via the remote deployment, open `index.html` in any modern web browser. The interface permits manual data entry or automated population of sample data for inference testing.
-
-### Model Development Environment
-To replicate the training and evaluation procedures:
-1. Open `Final_project_DL4AI.ipynb` in Google Colab or a local Jupyter environment.
-2. Ensure required financial datasets are accessible via the configured data paths.
-3. Execute the cells sequentially to observe data preprocessing, model convergence, and portfolio optimization outputs.
+### 3. Model Development and Training Environment
+To replicate the deep learning training, evaluation, and portfolio optimization procedures:
+1. Open `Final_project_DL4AI.ipynb` in Google Colab or your preferred Jupyter environment.
+2. Upload the required CSV datasets (historical data, financial ratios, ticker overview) into the corresponding directory structure defined in the code.
+3. Ensure the `base_path` variable is correctly configured to point to your data directory.
+4. Execute the cells sequentially to observe the pipeline from raw data preprocessing to model convergence and Markowitz optimization outputs.
 
 ## Author
 
