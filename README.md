@@ -1,99 +1,93 @@
-<div align="center">
-  
-# AlphaQuant: Deep Learning for Market Forecasting & Portfolio Optimization
+# AlphaQuant: Deep Learning for Market Forecasting and Portfolio Optimization
 
-**An End-to-End AI-Driven Quantitative Trading and Portfolio Management System**
+## Project Overview
 
-[![Python 3.11](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
-[![TensorFlow](https://img.shields.io/badge/TensorFlow-2.16-FF6F00.svg?logo=tensorflow)](https://www.tensorflow.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688.svg?logo=fastapi)](https://fastapi.tiangolo.com/)
-[![Airflow](https://img.shields.io/badge/Airflow-2.9-017CEE.svg?logo=apache-airflow)](https://airflow.apache.org/)
-[![dbt](https://img.shields.io/badge/dbt-1.8-FF694B.svg?logo=dbt)](https://www.getdbt.com/)
+**AlphaQuant** is a comprehensive, end-to-end quantitative finance and artificial intelligence system designed to analyze, forecast, and execute trading strategies on the Nasdaq and Vietnam (VN-Index) stock markets. 
 
-</div>
+Developed as an academic capstone, this project bridges the gap between theoretical deep learning models and industry-grade engineering practices. It encompasses the entire data lifecycle: from automated data ingestion and transformation pipelines (ELT) to the training of Long Short-Term Memory (LSTM) neural networks, risk-adjusted portfolio optimization, and final deployment as a production-ready Software-as-a-Service (SaaS) application.
 
----
+## Core Capabilities and Technical Highlights
 
-## 📖 Project Overview
+### 1. Multi-Horizon Time-Series Forecasting
+- **Architecture:** Developed custom LSTM networks optimized for non-stationary financial time-series data.
+- **Features:** Engineered multi-dimensional input tensors incorporating Open, High, Low, Close, Volume (OHLCV) alongside calculated macroeconomic and technical indicators.
+- **Results:** Achieved a Mean Absolute Percentage Error (MAPE) of 1.93% on sequential predictions, outperforming baseline single-variable models by leveraging k-day trajectory forecasting.
 
-**AlphaQuant** is a comprehensive quantitative finance project that leverages Deep Learning (LSTM networks) to analyze, forecast, and trade on both the **Nasdaq (US)** and **VN-Index (Vietnam)** stock markets. 
+### 2. Algorithmic Trading Signal Classification
+- **Feature Engineering:** Implemented advanced statistical indicators including 14-day Rolling Volatility, Simple Moving Average (SMA), Relative Strength Index (RSI), Log Returns, and Bollinger Bands.
+- **Model Design:** Trained distinct binary classification models to detect optimal entry (Buy) and exit (Sell) signals. 
+- **Optimization:** Addressed class imbalance by applying custom loss weights to minimize false negatives during critical market entry points.
 
-Developed for *CS313 - Deep Learning for Artificial Intelligence*, this system goes beyond notebook-level price prediction. It encompasses a full MLOps pipeline: from raw time-series data processing to API deployment, a web-based SaaS interface, and an automated data engineering workflow.
+### 3. Quantitative Risk Management and Portfolio Construction
+- **Risk Assessment:** Formulated a proprietary composite risk score utilizing AI-derived sell probabilities (50%), historical volatility (30%), and technical risk factors (20%).
+- **Asset Allocation:** Applied Modern Portfolio Theory (Markowitz Efficient Frontier) using `PyPortfolioOpt` with Ledoit-Wolf shrinkage to dynamically construct portfolios.
+- **Performance:** Systematically excluded high-risk assets, maximizing the theoretical Sharpe Ratio and achieving an expected annual return of 7.3% under stringent risk constraints.
 
-🌐 **Live Web Application (SaaS):** [AlphaQuant Prediction Portal](https://hodatisg520.github.io/Deep-Learning-Market-Forecasting-Portfolio-Optimization/)
+### 4. MLOps and Production Deployment (API & SaaS)
+- **Backend Architecture:** Deployed the trained TensorFlow models as a highly concurrent REST API utilizing **FastAPI** and **Uvicorn**, hosted on Render.
+- **Data Validation:** Enforced strict schema validation using **Pydantic** to handle complex 20-day multi-feature JSON payloads.
+- **Frontend Interface:** Developed a lightweight, zero-dependency web interface utilizing HTML5 and Vanilla JavaScript. The application communicates asynchronously with the FastAPI backend to deliver real-time, actionable trading insights to end-users.
+- **Live Access:** The production environment is publicly accessible via GitHub Pages.
 
----
+### 5. Automated Data Engineering Workflow
+Designed a modern ELT (Extract, Load, Transform) data pipeline to ensure data integrity and continuous model readiness:
+- **Data Ingestion:** Simulated automated extraction from external APIs into a relational database using **Airbyte**.
+- **Data Transformation:** Utilized **dbt (Data Build Tool)** to perform in-database transformations, calculating technical features (SMA, RSI, Volatility) via optimized SQL Window Functions.
+- **Orchestration:** Authored Directed Acyclic Graphs (DAGs) using **Apache Airflow** to orchestrate the sequential execution of data ingestion, dbt transformations, and Python-based model inference on a daily schedule.
 
-## 🚀 Key Milestones & Tasks
+## Technology Stack
 
-### 🧠 Task 1-4: Core AI Models & Portfolio Optimization
-- **Multi-Horizon Forecasting:** Custom LSTM neural networks for 1-day, 3-day, and 7-day ahead predictions with MAPE as low as 1.93%.
-- **Trading Signal Detection:** Binary classification models predicting highly profitable **BUY** entry points and risk-mitigating **SELL** exits based on complex technical indicators (SMA, RSI, Volatility).
-- **Risk Management & Portfolio:** Automated Markowitz Efficient Frontier filtering using PyPortfolioOpt to achieve optimal expected annual returns under strict risk constraints.
+- **Deep Learning & Mathematics:** TensorFlow, Keras, NumPy, Pandas, Scikit-learn, PyPortfolioOpt
+- **Backend Engineering:** Python 3.11, FastAPI, Uvicorn, Pydantic
+- **Data Engineering & MLOps:** Apache Airflow, dbt, Airbyte, PostgreSQL (Architecture Design)
+- **Frontend Development:** HTML5, CSS3, JavaScript (ES6), Fetch API
+- **Version Control & CI/CD:** Git, GitHub Pages, Render
 
-### 🌐 Task 5.1 & 5.2: Model Deployment & SaaS Application (Extra Credit)
-Instead of keeping the model in a Jupyter Notebook, the system has been fully deployed to the cloud:
-- **Task 5.1 (API Deployment):** The trained LSTM Buy/Sell model is served as a high-performance **REST API** using **FastAPI** and **Uvicorn**, deployed on **Render**. It processes live 20-day time-series data and returns JSON predictions instantly.
-- **Task 5.2 (SaaS UI):** A lightweight, responsive web application was built and hosted publicly on **GitHub Pages**. Users can interactively test the model by entering stock indicators or loading sample data, receiving real-time Buy/Hold/Sell recommendations.
-
-### ⚙️ Task 5.3: AI Engineering Workflow (Extra Credit)
-To ensure the model receives fresh data automatically, a modern **Data Engineering Pipeline (ELT)** was designed using industry-standard tools:
-- **Airbyte:** Automates data ingestion from Nasdaq/Vietnam APIs into the database.
-- **dbt (Data Build Tool):** Transforms raw data directly in SQL, computing critical technical indicators (SMA, RSI) efficiently.
-- **Python (TensorFlow):** Pulls the transformed features to run the prediction model and stores results back to the database.
-- **Apache Airflow:** Acts as the orchestrator, executing the entire pipeline (`Airbyte -> dbt -> Python`) on a daily schedule.
-> *Skeleton code for this pipeline is available in the `task_5.3_workflow/` directory.*
-
----
-
-## 🛠️ Repository Structure
+## Repository Architecture
 
 ```text
 AlphaQuant/
 ├── app/
-│   └── main.py                       # (Task 5.1) FastAPI application for model serving
-├── index.html                        # (Task 5.2) SaaS Web Interface (Frontend)
-├── task_5.3_workflow/                # (Task 5.3) Automated AI Engineering Pipeline
-│   ├── airflow/dags/                 # Airflow DAG for orchestration
-│   ├── dbt/models/                   # dbt SQL models for feature engineering
-│   └── scripts/                      # Python prediction scripts
-├── task_5.3_report.md                # System diagram and workflow documentation
-├── Final_project_DL4AI.ipynb         # Main Jupyter Notebook (Training & Evaluation)
-├── 240112-project-report.pdf         # Comprehensive Academic Project Report
-├── requirements.txt                  # Python API dependencies
+│   └── main.py                       # FastAPI application for production model serving
+├── index.html                        # SaaS Web Application (Frontend Client)
+├── task_5.3_workflow/                # Automated Data Engineering Pipeline
+│   ├── airflow/dags/                 # Apache Airflow orchestration scripts
+│   ├── dbt/models/                   # dbt SQL transformation models
+│   └── scripts/                      # Python inference and data synchronization scripts
+├── task_5.3_report.md                # System architecture diagrams and workflow documentation
+├── Final_project_DL4AI.ipynb         # Model development, training, and evaluation notebook
+├── 240112-project-report.pdf         # Academic project report and methodological justification
+├── requirements.txt                  # Production backend dependencies
 └── README.md                         # Project documentation
 ```
 
----
+## Setup and Execution Guidelines
 
-## 💻 Getting Started (Setup Instructions)
-
-### 1. View the Live SaaS Demo
-Simply visit the public GitHub Pages link to use the AI model from your browser:
-👉 [**AlphaQuant Live Demo**](https://hodatisg520.github.io/Deep-Learning-Market-Forecasting-Portfolio-Optimization/)
-
-### 2. Running the API Locally (Backend)
-If you want to run the FastAPI backend on your own machine:
-1. Ensure you have Python 3.11 installed.
-2. Open your terminal in the project directory and install the requirements:
+### Executing the Production API Locally
+1. Initialize a Python 3.11 virtual environment.
+2. Install the required dependencies:
    ```bash
    pip install -r requirements.txt
    ```
-3. Start the server:
+3. Initialize the ASGI server:
    ```bash
-   python main.py
+   uvicorn app.main:app --host 0.0.0.0 --port 8000
    ```
-   *(The API will be available at `http://localhost:8000`)*
+4. Access the API documentation at `http://localhost:8000/docs`.
 
-### 3. Model Training & Evaluation
-To view the Deep Learning experiments:
-1. Open `Final_project_DL4AI.ipynb` via Google Colab.
-2. Upload your datasets to Google Drive.
-3. Run the notebook cells sequentially to train the LSTM models and evaluate the Markowitz portfolio optimization.
+### Launching the SaaS Interface
+With the backend server running locally or via the remote deployment, open `index.html` in any modern web browser. The interface permits manual data entry or automated population of sample data for inference testing.
 
----
+### Model Development Environment
+To replicate the training and evaluation procedures:
+1. Open `Final_project_DL4AI.ipynb` in Google Colab or a local Jupyter environment.
+2. Ensure required financial datasets are accessible via the configured data paths.
+3. Execute the cells sequentially to observe data preprocessing, model convergence, and portfolio optimization outputs.
 
-## 👨‍🎓 Author
+## Author
+
 **Nguyen Hong Dang**
-- **Course:** CS313 - Deep Learning for Artificial Intelligence (Spring 2026)
-- *Disclaimer: This project was developed for academic purposes. The financial predictions provided are for educational demonstration and should not be considered financial advice.*
+- CS313 - Deep Learning for Artificial Intelligence
+- Spring 2026
+
+*Disclaimer: This repository and its associated models are developed strictly for academic and portfolio demonstration purposes. The predictions generated by these models do not constitute financial advice.*
