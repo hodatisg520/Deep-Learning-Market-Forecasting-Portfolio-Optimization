@@ -1,6 +1,6 @@
 """
-Task 5.1 - Stock Prediction Model Deployment as REST API
-Uses FastAPI to serve Buy Signal and Sell Signal LSTM models
+AlphaQuant - Model Inference REST API
+Provides high-performance serving of LSTM trading signal models via FastAPI.
 """
 
 from fastapi import FastAPI, HTTPException
@@ -18,8 +18,8 @@ logger = logging.getLogger(__name__)
 
 # ── App ────────────────────────────────────────────────────────────────────────
 app = FastAPI(
-    title="Stock Prediction API",
-    description="REST API for Buy/Sell Signal prediction using LSTM models (Task 5.1)",
+    title="AlphaQuant Prediction API",
+    description="REST API for executing inference on Deep Learning trading signal models.",
     version="1.0.0",
 )
 
@@ -164,7 +164,7 @@ async def startup_event():
 @app.get("/", tags=["Root"])
 def root():
     return {
-        "message": "Stock Prediction API - Task 5.1",
+        "message": "AlphaQuant Prediction API - Serving Layer",
         "docs": "/docs",
         "health": "/health",
         "endpoints": ["/predict/buy", "/predict/sell"],

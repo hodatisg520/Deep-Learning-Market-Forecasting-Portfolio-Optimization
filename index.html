@@ -63,7 +63,7 @@
 <div class="container">
     <div class="card">
         <h1>Stock Prediction SaaS</h1>
-        <p style="text-align: center; color: var(--text-muted); margin-bottom: 30px;">Nhập dữ liệu 20 phiên giao dịch gần nhất để dự đoán tín hiệu giao dịch.</p>
+        <p style="text-align: center; color: var(--text-muted); margin-bottom: 30px;">Input the last 20 trading sessions to predict market signals.</p>
         
         <div class="tabs">
             <div class="tab active" onclick="switchTab('buy')" id="tab-buy">Buy Signal Model</div>
@@ -71,8 +71,8 @@
         </div>
 
         <div class="controls">
-            <button class="secondary" onclick="loadSampleData()">Tải dữ liệu mẫu (Sample Data)</button>
-            <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 500;" id="table-info">Mô hình Mua (11 đặc trưng)</span>
+            <button class="secondary" onclick="loadSampleData()">Load Sample Data</button>
+            <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 500;" id="table-info">Buy Model (11 features)</span>
         </div>
 
         <div class="table-container">
@@ -86,26 +86,26 @@
             </table>
         </div>
         
-        <button id="predictBtn" onclick="makePrediction()" style="width: 100%; font-size: 1.1rem; padding: 15px; margin-top: 10px;">Dự Đoán Kết Quả</button>
+        <button id="predictBtn" onclick="makePrediction()" style="width: 100%; font-size: 1.1rem; padding: 15px; margin-top: 10px;">Predict Signal</button>
 
         <div id="resultBox" class="result-card">
-            <h3 style="margin-top: 0; margin-bottom: 15px; color: #1e293b;" id="resultTitle">Kết quả phân tích:</h3>
+            <h3 style="margin-top: 0; margin-bottom: 15px; color: #1e293b;" id="resultTitle">Analysis Result:</h3>
             <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                <span class="stat-label" style="margin-bottom: 0;">Khuyến nghị:</span>
+                <span class="stat-label" style="margin-bottom: 0;">Recommendation:</span>
                 <span id="resRec" class="tag"></span>
             </div>
             
             <div class="prediction-details">
                 <div class="stat-box">
-                    <div class="stat-label">Xác suất (Probability)</div>
+                    <div class="stat-label">Probability</div>
                     <div class="stat-value" id="resProb">--</div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-label">Độ tin cậy (Confidence)</div>
+                    <div class="stat-label">Confidence</div>
                     <div class="stat-value" id="resConf">--</div>
                 </div>
                 <div class="stat-box">
-                    <div class="stat-label">Ngưỡng (Threshold)</div>
+                    <div class="stat-label">Threshold</div>
                     <div class="stat-value" id="resThresh" style="font-size: 1.25rem;">--</div>
                 </div>
             </div>
@@ -137,7 +137,7 @@
         document.getElementById('tab-sell').classList.toggle('active', mode === 'sell');
         
         document.getElementById('table-info').innerText = mode === 'buy' ? 
-            'Mô hình Mua (11 đặc trưng)' : 'Mô hình Bán (13 đặc trưng)';
+            'Buy Model (11 features)' : 'Sell Model (13 features)';
         
         document.getElementById('resultBox').style.display = 'none';
         
@@ -227,7 +227,7 @@
         const resultBox = document.getElementById('resultBox');
         
         // Reset UI
-        btn.innerText = "Đang xử lý...";
+        btn.innerText = "Processing...";
         btn.disabled = true;
         resultBox.style.display = 'none';
         resultBox.className = 'result-card'; 
@@ -258,8 +258,8 @@
                 document.getElementById('resThresh').innerText = data.threshold_used;
             } else {
                 resultBox.classList.add('error');
-                document.getElementById('resProb').innerText = 'Lỗi';
-                document.getElementById('resRec').innerText = 'Dữ liệu không hợp lệ';
+                document.getElementById('resProb').innerText = 'Error';
+                document.getElementById('resRec').innerText = 'Invalid Data';
                 document.getElementById('resRec').className = 'tag hold';
                 document.getElementById('resConf').innerText = data.detail ? JSON.stringify(data.detail) : 'Unknown error';
                 document.getElementById('resThresh').innerText = '--';
@@ -267,9 +267,9 @@
             resultBox.style.display = 'block';
 
         } catch (error) {
-            alert(`Lỗi kết nối: ${error.message}\nHãy chắc chắn backend API đang chạy tại port 8000 (uvicorn main:app --reload)`);
+            alert(`Connection Error: ${error.message}\nMake sure the backend API is running on port 8000 (uvicorn main:app --reload)`);
         } finally {
-            btn.innerText = "Dự Đoán Kết Quả";
+            btn.innerText = "Predict Signal";
             btn.disabled = false;
         }
     }
