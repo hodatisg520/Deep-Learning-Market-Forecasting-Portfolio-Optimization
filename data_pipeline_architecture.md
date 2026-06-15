@@ -57,7 +57,7 @@ This system utilizes modern industry-standard data engineering tools, orchestrat
 
 ### Step 1: Airbyte (Data Ingestion)
 - **Role:** Handles the Extract and Load phases.
-- **Operation:** Airbyte connects to external data sources (e.g., historical CSVs or live APIs for Nasdaq/VN-Index). On a scheduled basis, Airbyte automatically synchronizes and loads this raw data into a centralized database (such as PostgreSQL or MongoDB) into designated raw tables (`raw_daily_prices`). This guarantees the database is continually populated with fresh data without manual intervention.
+- **Operation:** Airbyte connects to external data sources (e.g., historical CSVs or live APIs for Nasdaq and Vietnamese stocks like SAM). On a scheduled basis, Airbyte automatically synchronizes and loads this raw data into a centralized database (such as PostgreSQL or MongoDB) into designated raw tables (`raw_daily_prices`). This guarantees the database is continually populated with fresh data without manual intervention.
 
 ### Step 2: dbt - Data Build Tool (Data Transformation)
 - **Role:** Executes the Transform phase directly within the data warehouse/database.
