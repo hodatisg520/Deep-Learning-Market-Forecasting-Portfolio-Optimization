@@ -16,7 +16,7 @@
 
 ## Project Overview
 
-**AlphaQuant** is a comprehensive, end-to-end quantitative finance and artificial intelligence system designed to analyze, forecast, and execute trading strategies on the Nasdaq and Vietnamese equity markets (e.g., SAM Holdings).
+**AlphaQuant** is a comprehensive, end-to-end quantitative finance and artificial intelligence system designed to analyze, forecast, and execute trading strategies on the Nasdaq and Vietnam (VN-Index) stock markets. 
 
 This project bridges the gap between theoretical deep learning models and industry-grade engineering practices. It encompasses the entire data lifecycle: from automated data ingestion and transformation pipelines (ELT) to the training of Long Short-Term Memory (LSTM) neural networks, risk-adjusted portfolio optimization, and final deployment as a production-ready Software-as-a-Service (SaaS) application.
 
