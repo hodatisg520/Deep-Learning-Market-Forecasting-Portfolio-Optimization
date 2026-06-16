@@ -1,10 +1,11 @@
--- Mô hình dbt (Data Build Tool) dùng để biến đổi dữ liệu (Transformation)
--- File này thực thi các lệnh SQL trực tiếp trên Data Warehouse (PostgreSQL/MongoDB)
+-- dbt Model: Stock Features
+-- This model applies SQL transformations directly on the Data Warehouse.
+-- Computes rolling technical indicators necessary for deep learning inference.
 
 {{ config(materialized='table') }}
 
 WITH raw_stock_data AS (
-    -- Bước 1: Lấy dữ liệu thô đã được Airbyte nạp vào database
+    -- Step 1: Extract raw daily price data ingested via Airbyte
     SELECT 
         date,
         ticker,
@@ -17,31 +18,38 @@ WITH raw_stock_data AS (
 ),
 
 calculated_features AS (
-    -- Bước 2: Dùng SQL Window Functions để tính toán các đặc trưng (Features) cho Deep Learning
+    -- Step 2: Compute technical features using SQL Window Functions
     SELECT 
         *,
-        -- Tính Simple Moving Average (SMA) 14 ngày
+        -- 14-day Simple Moving Average (SMA)
         AVG(close) OVER (
             PARTITION BY ticker 
             ORDER BY date 
             ROWS BETWEEN 13 PRECEDING AND CURRENT ROW
-        ) as sma_14,
+        ) AS sma_14,
 
-        -- Tính Lợi nhuận Log (Log Return) giữa ngày hôm nay và hôm qua
-        LN(close / NULLIF(LAG(close, 1) OVER (PARTITION BY ticker ORDER BY date), 0)) as log_return,
+        -- Daily Logarithmic Return
+        LN(close / NULLIF(LAG(close, 1) OVER (
+            PARTITION BY ticker 
+            ORDER BY date
+        ), 0)) AS log_return,
         
-        -- Tính Độ biến động (Volatility) trong 14 ngày (Độ lệch chuẩn của Log Return)
-        STDDEV(LN(close / NULLIF(LAG(close, 1) OVER (PARTITION BY ticker ORDER BY date), 0))) OVER (
+        -- 14-day Volatility (Standard Deviation of Log Returns)
+        STDDEV(LN(close / NULLIF(LAG(close, 1) OVER (
+            PARTITION BY ticker 
+            ORDER BY date
+        ), 0))) OVER (
             PARTITION BY ticker 
             ORDER BY date 
             ROWS BETWEEN 13 PRECEDING AND CURRENT ROW
-        ) as volatility_14
+        ) AS volatility_14
 
-        -- Ghi chú: RSI và các chỉ báo phức tạp hơn có thể được tạo bằng CTEs nâng cao hoặc dbt macros
+        -- Note: Additional advanced indicators (e.g., RSI) can be implemented 
+        -- using dbt macros or Python preprocessing layers.
     FROM raw_stock_data
 )
 
--- Bước 3: Trả về bảng dữ liệu cuối cùng (sạch và đã có features) để mô hình Python sử dụng
+-- Step 3: Materialize the final analytical dataset
 SELECT * 
 FROM calculated_features
-WHERE sma_14 IS NOT NULL -- Lọc bỏ những dòng chưa đủ 14 ngày đầu tiên để tính SMA
+WHERE sma_14 IS NOT NULL -- Exclude initial rows that lack sufficient history for SMA calculation
