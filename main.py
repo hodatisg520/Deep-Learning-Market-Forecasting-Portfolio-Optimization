@@ -262,9 +262,9 @@ def predict_sell(request: SellPredictRequest):
                 detail=f"Row {i} must have 13 features, got {len(row)}.",
             )
 
-    SELL_THRESHOLD = float(os.getenv("SELL_THRESHOLD", "0.50"))
     try:
-        prob = run_inference(sell_model, sell_scaler, request.features, input_shape=(20, 13))
+        SELL_THRESHOLD = float(os.getenv("SELL_THRESHOLD", "0.55"))
+        prob = run_inference(sell_model, sell_scaler, request.features, input_shape=(20, 14))
     except Exception as e:
         logger.error(f"Sell Inference Error: {e}")
         raise HTTPException(status_code=503, detail="Model inference failed. Models may not be loaded.")
@@ -311,13 +311,13 @@ def predict_live(request: LivePredictRequest):
             
         features = df_recent[['open', 'high', 'low', 'close', 'volume', 'sma_14', 'log_return', 'volatility_14']].values
         
-        # Pad to 14 columns to satisfy the scaler
+        # The buy model expects 11 features, sell model expects 14 features
         pad_width = 14 - features.shape[1]
         padding = np.zeros((features.shape[0], pad_width))
         features_14d = np.hstack((features, padding))
 
         features_11d = features_14d[:, :11].tolist()
-        features_13d = features_14d[:, :13].tolist()
+        features_14d_list = features_14d.tolist()
         
         if request.mode == "buy":
             BUY_THRESHOLD = float(os.getenv("BUY_THRESHOLD", "0.40"))
@@ -328,12 +328,13 @@ def predict_live(request: LivePredictRequest):
                 model="buy_signal_lstm", threshold_used=BUY_THRESHOLD, features_used=features_11d
             )
         else:
-            SELL_THRESHOLD = float(os.getenv("SELL_THRESHOLD", "0.50"))
-            prob = run_inference(sell_model, sell_scaler, features_13d, input_shape=(20, 13))
+            SELL_THRESHOLD = float(os.getenv("SELL_THRESHOLD", "0.55"))
+            prob = run_inference(sell_model, sell_scaler, features_14d_list, input_shape=(20, 14))
+            
             recommendation = "SELL" if prob >= SELL_THRESHOLD else "HOLD"
             return LivePredictionResponse(
                 probability=prob, recommendation=recommendation, confidence=get_confidence(prob),
-                model="sell_signal_lstm", threshold_used=SELL_THRESHOLD, features_used=features_13d
+                model="sell_signal_lstm", threshold_used=SELL_THRESHOLD, features_used=features_14d_list
             )
     except Exception as e:
         logger.error(f"Live inference error: {e}")
