@@ -160,6 +160,15 @@ def run_inference(model, scaler, features: list, input_shape: tuple) -> float:
             x_2d = x.reshape(-1, input_shape[1])
             x_scaled = scaler.transform(x_2d)
             x = x_scaled.reshape(1, *input_shape)
+        elif np.max(x) > 10:
+            # Fallback: if scaler is missing and data is unscaled (e.g. Volume > 1000000),
+            # manually MinMax scale per column across the 20 days to prevent 1.0 saturation.
+            x_2d = x.reshape(-1, input_shape[1])
+            col_min = np.min(x_2d, axis=0)
+            col_max = np.max(x_2d, axis=0)
+            range_vals = np.where((col_max - col_min) == 0, 1, col_max - col_min)
+            x_scaled = (x_2d - col_min) / range_vals
+            x = x_scaled.reshape(1, *input_shape)
         else:
             x = x.reshape(1, *input_shape)
             
