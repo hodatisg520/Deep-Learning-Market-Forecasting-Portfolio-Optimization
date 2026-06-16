@@ -11,7 +11,6 @@ import numpy as np
 import uvicorn
 import os
 import logging
-import joblib
 
 # ── Logging ────────────────────────────────────────────────────────────────────
 logging.basicConfig(level=logging.INFO)
@@ -115,6 +114,7 @@ def load_models():
             buy_model = tf.saved_model.load(buy_path)
             logger.info(f"✅ Buy model loaded from {buy_path}")
             if os.path.exists(buy_scaler_path):
+                import joblib
                 buy_scaler = joblib.load(buy_scaler_path)
                 logger.info("✅ Buy scaler loaded.")
         else:
@@ -124,6 +124,7 @@ def load_models():
             sell_model = tf.saved_model.load(sell_path)
             logger.info(f"✅ Sell model loaded from {sell_path}")
             if os.path.exists(sell_scaler_path):
+                import joblib
                 sell_scaler = joblib.load(sell_scaler_path)
                 logger.info("✅ Sell scaler loaded.")
         else:
