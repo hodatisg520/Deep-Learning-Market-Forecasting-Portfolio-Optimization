@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🧠 AlphaQuant
+# AlphaQuant
 
 ### Deep Learning for Market Forecasting & Portfolio Optimization
 
@@ -17,48 +17,48 @@
 
 <br />
 
-[**🚀 Try the Live App**](https://hodatisg520.github.io/Deep-Learning-Market-Forecasting-Portfolio-Optimization/) · [**📡 API Docs**](https://deep-learning-market-forecasting-liyz.onrender.com/docs) · [**📐 Architecture Docs**](data_pipeline_architecture.md)
+[**Try the Live App**](https://hodatisg520.github.io/Deep-Learning-Market-Forecasting-Portfolio-Optimization/) · [**API Docs**](https://deep-learning-market-forecasting-liyz.onrender.com/docs) · [**Architecture Docs**](data_pipeline_architecture.md)
 
 </div>
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Project Overview](#-project-overview)
-- [✨ NEW — Live Prediction Feature](#-new--live-prediction-feature)
-- [Core Capabilities](#-core-capabilities)
-- [System Architecture](#-system-architecture)
-- [Technology Stack](#-technology-stack)
-- [Repository Structure](#-repository-structure)
-- [API Reference](#-api-reference)
-- [Setup & Usage](#-setup--usage)
-- [Model Specifications](#-model-specifications)
-- [Author](#-author)
+- [Project Overview](#project-overview)
+- [Live Prediction Feature](#live-prediction-feature)
+- [Core Capabilities](#core-capabilities)
+- [System Architecture](#system-architecture)
+- [Technology Stack](#technology-stack)
+- [Repository Structure](#repository-structure)
+- [API Reference](#api-reference)
+- [Setup and Usage](#setup-and-usage)
+- [Model Specifications](#model-specifications)
+- [Author](#author)
 
 ---
 
-## 🔭 Project Overview
+## Project Overview
 
 **AlphaQuant** is a comprehensive, end-to-end quantitative finance and artificial intelligence system designed to analyze, forecast, and execute trading strategies on the Nasdaq and Vietnam (VN-Index) stock markets.
 
 This project bridges the gap between theoretical deep learning models and industry-grade engineering practices. It encompasses the entire data lifecycle: from automated data ingestion and transformation pipelines (ELT) to the training of Long Short-Term Memory (LSTM) neural networks, risk-adjusted portfolio optimization, and final deployment as a production-ready Software-as-a-Service (SaaS) application.
 
 > [!TIP]
-> **Want to see it in action?** Click the **[Live App](https://hodatisg520.github.io/Deep-Learning-Market-Forecasting-Portfolio-Optimization/)** link above and hit the **"⚡ Live Predict"** button — the system will fetch real-time market data and return an AI prediction in seconds. No signup, no data entry required.
+> **Want to see it in action?** Click the **[Live App](https://hodatisg520.github.io/Deep-Learning-Market-Forecasting-Portfolio-Optimization/)** link above and hit the **"Live Predict"** button — the system will fetch real-time market data and return an AI prediction in seconds. No signup, no data entry required.
 
 ---
 
-## ✨ NEW — Live Prediction Feature
+## Live Prediction Feature
 
 The **Live Predict** feature is the flagship capability of AlphaQuant. With a single click, the system performs the following end-to-end workflow automatically:
 
 ```mermaid
 flowchart LR
-    A["👆 User clicks<br/><b>Live Predict</b>"] --> B["📡 FastAPI fetches<br/>Yahoo Finance"]
-    B --> C["⚙️ Feature Engineering<br/>SMA₁₄ · Log Return<br/>Volatility₁₄"]
-    C --> D["🧠 LSTM Inference<br/>Buy & Sell Models"]
-    D --> E["📊 Signal Output<br/>BUY / SELL / HOLD"]
+    A["User clicks<br/><b>Live Predict</b>"] --> B["FastAPI fetches<br/>Yahoo Finance"]
+    B --> C["Feature Engineering<br/>SMA14 · Log Return<br/>Volatility14"]
+    C --> D["LSTM Inference<br/>Buy & Sell Models"]
+    D --> E["Signal Output<br/>BUY / SELL / HOLD"]
 
     style A fill:#4CAF50,color:#fff,stroke:none
     style B fill:#7C4DFF,color:#fff,stroke:none
@@ -79,7 +79,7 @@ flowchart LR
 
 ---
 
-## 🎯 Core Capabilities
+## Core Capabilities
 
 ### 1. Multi-Horizon Time-Series Forecasting
 - **Architecture:** Custom LSTM networks optimized for non-stationary financial time-series data
@@ -108,15 +108,15 @@ flowchart LR
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 ```mermaid
 flowchart TB
-    subgraph CLIENT ["🌐 Frontend · GitHub Pages"]
+    subgraph CLIENT ["Frontend · GitHub Pages"]
         UI["index.html<br/>HTML5 · CSS3 · JavaScript"]
     end
 
-    subgraph RENDER ["☁️ Backend · Render"]
+    subgraph RENDER ["Backend · Render"]
         API["main.py<br/>FastAPI + Uvicorn"]
         BUY_MODEL["buy_model/<br/>LSTM (20, 11)"]
         SELL_MODEL["sell_model/<br/>LSTM (20, 14)"]
@@ -124,11 +124,11 @@ flowchart TB
         SELL_SCALER["sell_scaler.pkl"]
     end
 
-    subgraph YAHOO ["📈 Yahoo Finance"]
+    subgraph YAHOO ["Yahoo Finance"]
         YF["yfinance API<br/>Real-Time OHLCV"]
     end
 
-    subgraph PIPELINE ["⚙️ Data Pipeline"]
+    subgraph PIPELINE ["Data Pipeline"]
         AF["Airflow DAG"]
         DBT["dbt Models"]
         SCRIPTS["predict_and_store.py"]
@@ -152,7 +152,7 @@ flowchart TB
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 | Category | Technologies |
 |----------|-------------|
@@ -165,7 +165,7 @@ flowchart TB
 
 ---
 
-## 📁 Repository Structure
+## Repository Structure
 
 ```text
 AlphaQuant/
@@ -195,7 +195,7 @@ AlphaQuant/
 
 ---
 
-## 📡 API Reference
+## API Reference
 
 The FastAPI backend exposes the following endpoints:
 
@@ -205,7 +205,7 @@ The FastAPI backend exposes the following endpoints:
 | `GET` | `/health` | Health check for monitoring and uptime probes |
 | `POST` | `/predict/buy` | Run buy-signal inference on a 20×11 feature matrix |
 | `POST` | `/predict/sell` | Run sell-signal inference on a 20×14 feature matrix |
-| `POST` | `/predict/live` | **⚡ Live Predict** — Fetches real-time Yahoo Finance data and runs both models |
+| `POST` | `/predict/live` | **Live Predict** — Fetches real-time Yahoo Finance data and runs both models |
 | `GET` | `/features/buy` | Returns the list of expected feature names for the buy model |
 | `GET` | `/features/sell` | Returns the list of expected feature names for the sell model |
 
@@ -215,14 +215,14 @@ The FastAPI backend exposes the following endpoints:
 
 ---
 
-## 🚀 Setup & Usage
+## Setup and Usage
 
 ### Option 1: Use the Live SaaS Application (No Install Required)
 
 The system is fully deployed to the cloud. No local dependencies needed.
 
 1. Navigate to the **[AlphaQuant Web App](https://hodatisg520.github.io/Deep-Learning-Market-Forecasting-Portfolio-Optimization/)**
-2. **⚡ Live Predict (Recommended):** Click the **"Live Predict"** button — the system automatically fetches real-time data from Yahoo Finance for **SAM.VN** and returns an AI-powered BUY/SELL/HOLD recommendation instantly
+2. **Live Predict (Recommended):** Click the **"Live Predict"** button — the system automatically fetches real-time data from Yahoo Finance for **SAM.VN** and returns an AI-powered BUY/SELL/HOLD recommendation instantly
 3. **Manual Predict:** Click **"Load Sample Data"** to populate the matrix with 20 days of historical indicators, then click **"Predict Signal"** to run inference
 4. The system asynchronously returns the predicted probability and trading recommendation
 
@@ -267,7 +267,7 @@ This script fetches live market data for SAM.VN, engineers features, and prints 
 
 ---
 
-## 📊 Model Specifications
+## Model Specifications
 
 | Specification | Buy Model | Sell Model |
 |--------------|-----------|------------|
@@ -282,7 +282,7 @@ This script fetches live market data for SAM.VN, engineers features, and prints 
 
 ---
 
-## 👤 Author
+## Author
 
 <div align="center">
 
@@ -296,7 +296,7 @@ This script fetches live market data for SAM.VN, engineers features, and prints 
 
 <div align="center">
 
-⚠️ **Disclaimer**
+**Disclaimer**
 
 *This repository and its associated models are developed strictly for portfolio demonstration and educational purposes. The predictions generated by these models do not constitute financial advice. Always consult a qualified financial advisor before making investment decisions.*
 
