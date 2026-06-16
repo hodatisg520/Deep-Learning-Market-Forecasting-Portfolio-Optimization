@@ -118,7 +118,7 @@ def load_models():
                 buy_scaler = joblib.load(buy_scaler_path)
                 logger.info("✅ Buy scaler loaded.")
         else:
-            logger.warning(f"⚠️  Buy model not found at {buy_path}. Using mock.")
+            logger.warning(f"⚠️  Buy model not found at {buy_path}.")
 
         if os.path.exists(sell_path):
             sell_model = tf.saved_model.load(sell_path)
@@ -128,58 +128,29 @@ def load_models():
                 sell_scaler = joblib.load(sell_scaler_path)
                 logger.info("✅ Sell scaler loaded.")
         else:
-            logger.warning(f"⚠️  Sell model not found at {sell_path}. Using mock.")
+            logger.warning(f"⚠️  Sell model not found at {sell_path}.")
 
     except Exception as e:
         logger.error(f"Model loading error: {e}")
 
 
-def mock_predict(features: list, seed: int = 42) -> float:
-    """
-    Mock inference when real model is not available.
-    Uses a hash of the input to return a deterministic pseudo-probability.
-    """
-    arr = np.array(features, dtype=np.float32)
-    # Avoid saturation from large values like Volume by taking modulo
-    pseudo_hash = np.sum(arr) % 100
-    val = (pseudo_hash / 100.0) * 0.6 + 0.2 # Range [0.2, 0.8]
-    return round(val, 4)
-
-
 def run_inference(model, scaler, features: list, input_shape: tuple) -> float:
-    """Run real TF inference with scaling, or fall back to mock."""
-    if model is None:
-        return mock_predict(features)
+    """Run real TF inference with scaling."""
+    if model is None or scaler is None:
+        raise RuntimeError("Model or Scaler is not loaded on the server.")
 
-    try:
-        import tensorflow as tf
-        x = np.array(features, dtype=np.float32)
+    import tensorflow as tf
+    x = np.array(features, dtype=np.float32)
+    
+    # Apply scaler (Training-Serving Skew Prevention)
+    x_2d = x.reshape(-1, input_shape[1])
+    x_scaled = scaler.transform(x_2d)
+    x = x_scaled.reshape(1, *input_shape)
         
-        # Apply scaler if available to prevent saturation (Training-Serving Skew)
-        if scaler is not None:
-            # Reshape to 2D for scaling, then back to 3D
-            x_2d = x.reshape(-1, input_shape[1])
-            x_scaled = scaler.transform(x_2d)
-            x = x_scaled.reshape(1, *input_shape)
-        elif np.max(x) > 10:
-            # Fallback: if scaler is missing and data is unscaled (e.g. Volume > 1000000),
-            # manually MinMax scale per column across the 20 days to prevent 1.0 saturation.
-            x_2d = x.reshape(-1, input_shape[1])
-            col_min = np.min(x_2d, axis=0)
-            col_max = np.max(x_2d, axis=0)
-            range_vals = np.where((col_max - col_min) == 0, 1, col_max - col_min)
-            x_scaled = (x_2d - col_min) / range_vals
-            x = x_scaled.reshape(1, *input_shape)
-        else:
-            x = x.reshape(1, *input_shape)
-            
-        tensor = tf.constant(x)
-        result = model(tensor)
-        prob = float(result.numpy().flatten()[0])
-        return round(prob, 4)
-    except Exception as e:
-        logger.error(f"Inference error: {e}")
-        return mock_predict(features)
+    tensor = tf.constant(x)
+    result = model(tensor)
+    prob = float(result.numpy().flatten()[0])
+    return round(prob, 4)
 
 
 # ── Startup / Shutdown ─────────────────────────────────────────────────────────
@@ -208,7 +179,7 @@ def health():
         status="ok",
         buy_model_loaded=(buy_model is not None),
         sell_model_loaded=(sell_model is not None),
-        message="API is running. Models use mock inference if not loaded.",
+        message="API is running.",
     )
 
 
@@ -230,7 +201,12 @@ def predict_buy(request: BuyPredictRequest):
             )
 
     BUY_THRESHOLD = float(os.getenv("BUY_THRESHOLD", "0.40"))
-    prob = run_inference(buy_model, buy_scaler, request.features, input_shape=(20, 11))
+    try:
+        prob = run_inference(buy_model, buy_scaler, request.features, input_shape=(20, 11))
+    except Exception as e:
+        logger.error(f"Buy Inference Error: {e}")
+        raise HTTPException(status_code=503, detail="Model inference failed. Models may not be loaded.")
+
     recommendation = "BUY" if prob >= BUY_THRESHOLD else "IGNORE"
 
     return PredictionResponse(
@@ -260,7 +236,12 @@ def predict_sell(request: SellPredictRequest):
             )
 
     SELL_THRESHOLD = float(os.getenv("SELL_THRESHOLD", "0.50"))
-    prob = run_inference(sell_model, sell_scaler, request.features, input_shape=(20, 13))
+    try:
+        prob = run_inference(sell_model, sell_scaler, request.features, input_shape=(20, 13))
+    except Exception as e:
+        logger.error(f"Sell Inference Error: {e}")
+        raise HTTPException(status_code=503, detail="Model inference failed. Models may not be loaded.")
+
     recommendation = "SELL" if prob >= SELL_THRESHOLD else "HOLD"
 
     return PredictionResponse(
