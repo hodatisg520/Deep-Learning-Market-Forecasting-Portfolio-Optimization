@@ -6,3 +6,4 @@ numpy
 tensorflow-cpu
 joblib
 scikit-learn
+yfinance

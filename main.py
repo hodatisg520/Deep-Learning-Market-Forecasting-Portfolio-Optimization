@@ -87,6 +87,18 @@ class HealthResponse(BaseModel):
     sell_model_loaded: bool
     message: str
 
+class LivePredictRequest(BaseModel):
+    ticker: str = Field(..., description="Ticker symbol (e.g., SAM.VN)")
+    mode: str = Field("buy", description="'buy' or 'sell' mode")
+
+class LivePredictionResponse(BaseModel):
+    probability: float
+    recommendation: str
+    confidence: str
+    model: str
+    threshold_used: float
+    features_used: List[List[float]]
+
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -251,6 +263,66 @@ def predict_sell(request: SellPredictRequest):
         model="sell_signal_lstm",
         threshold_used=SELL_THRESHOLD,
     )
+
+
+@app.post("/predict/live", response_model=LivePredictionResponse, tags=["Prediction"])
+def predict_live(request: LivePredictRequest):
+    """
+    Fetch live data from Yahoo Finance and predict instantly.
+    """
+    import yfinance as yf
+    import pandas as pd
+    
+    ticker = request.ticker
+    try:
+        df = yf.download(ticker, period="60d", progress=False)
+        if df.empty:
+            raise HTTPException(status_code=404, detail=f"No data found for ticker {ticker}.")
+        
+        if isinstance(df.columns, pd.MultiIndex):
+            df.columns = df.columns.droplevel(1)
+            
+        df.reset_index(inplace=True)
+        df.rename(columns={'Open': 'open', 'High': 'high', 'Low': 'low', 'Close': 'close', 'Volume': 'volume'}, inplace=True)
+        
+        df['sma_14'] = df['close'].rolling(window=14).mean()
+        df['log_return'] = np.log(df['close'] / df['close'].shift(1))
+        df['volatility_14'] = df['log_return'].rolling(window=14).std()
+        df.dropna(inplace=True)
+        
+        df_recent = df.tail(20)
+        if len(df_recent) < 20:
+            raise HTTPException(status_code=400, detail="Not enough data after rolling windows.")
+            
+        features = df_recent[['open', 'high', 'low', 'close', 'volume', 'sma_14', 'log_return', 'volatility_14']].values
+        
+        # Pad to 14 columns to satisfy the scaler
+        pad_width = 14 - features.shape[1]
+        padding = np.zeros((features.shape[0], pad_width))
+        features_14d = np.hstack((features, padding))
+
+        features_11d = features_14d[:, :11].tolist()
+        features_13d = features_14d[:, :13].tolist()
+        
+        if request.mode == "buy":
+            BUY_THRESHOLD = float(os.getenv("BUY_THRESHOLD", "0.40"))
+            prob = run_inference(buy_model, buy_scaler, features_11d, input_shape=(20, 11))
+            recommendation = "BUY" if prob >= BUY_THRESHOLD else "IGNORE"
+            return LivePredictionResponse(
+                probability=prob, recommendation=recommendation, confidence=get_confidence(prob),
+                model="buy_signal_lstm", threshold_used=BUY_THRESHOLD, features_used=features_11d
+            )
+        else:
+            SELL_THRESHOLD = float(os.getenv("SELL_THRESHOLD", "0.50"))
+            prob = run_inference(sell_model, sell_scaler, features_13d, input_shape=(20, 13))
+            recommendation = "SELL" if prob >= SELL_THRESHOLD else "HOLD"
+            return LivePredictionResponse(
+                probability=prob, recommendation=recommendation, confidence=get_confidence(prob),
+                model="sell_signal_lstm", threshold_used=SELL_THRESHOLD, features_used=features_13d
+            )
+    except Exception as e:
+        logger.error(f"Live inference error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/features/buy", tags=["Schema"])

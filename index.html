@@ -70,8 +70,17 @@
             <div class="tab" onclick="switchTab('sell')" id="tab-sell">Sell Signal Model</div>
         </div>
 
+        <!-- NEW LIVE PREDICT UI -->
+        <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; border: 1px solid var(--border-color);">
+            <div style="flex-grow: 1;">
+                <label for="liveTicker" style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 5px;">LIVE YAHOO FINANCE DATA</label>
+                <input type="text" id="liveTicker" placeholder="Enter Ticker (e.g. SAM.VN, FPT.VN)" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 1rem; box-sizing: border-box;">
+            </div>
+            <button onclick="makeLivePrediction()" style="background-color: #10b981; min-width: 150px; align-self: flex-end; height: 42px;">Live Predict ✨</button>
+        </div>
+
         <div class="controls">
-            <button class="secondary" onclick="loadSampleData()">Load Sample Data</button>
+            <button class="secondary" onclick="loadSampleData()">Load Sample Data (Manual)</button>
             <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 500;" id="table-info">Buy Model (11 features)</span>
         </div>
 
@@ -270,6 +279,70 @@
             alert(`Connection Error: ${error.message}\nMake sure the backend API is running on port 8000 (uvicorn main:app --reload)`);
         } finally {
             btn.innerText = "Predict Signal";
+            btn.disabled = false;
+        }
+    }
+
+    async function makeLivePrediction() {
+        const btn = document.querySelector('button[onclick="makeLivePrediction()"]');
+        const ticker = document.getElementById('liveTicker').value.trim();
+        if (!ticker) {
+            alert("Please enter a ticker symbol! (e.g., SAM.VN)");
+            return;
+        }
+
+        const resultBox = document.getElementById('resultBox');
+        
+        btn.innerText = "Fetching...";
+        btn.disabled = true;
+        resultBox.style.display = 'none';
+        resultBox.className = 'result-card'; 
+
+        const API_BASE_URL = 'https://deep-learning-market-forecasting-liyz.onrender.com';
+        // const API_BASE_URL = 'http://localhost:8000'; // Uncomment to test locally
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/predict/live`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ticker: ticker, mode: currentMode })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Update table with the fetched features
+                const features_used = data.features_used;
+                for (let i = 0; i < 20; i++) {
+                    for (let j = 0; j < schemas[currentMode].length; j++) {
+                        let val = features_used[i][j] || 0;
+                        document.getElementById(`cell-${i}-${j}`).value = val.toFixed(4);
+                    }
+                }
+
+                resultBox.classList.add('success');
+                document.getElementById('resProb').innerText = (data.probability * 100).toFixed(2) + '%';
+                
+                const recSpan = document.getElementById('resRec');
+                recSpan.innerText = data.recommendation;
+                recSpan.className = `tag ${data.recommendation.toLowerCase()}`;
+                
+                document.getElementById('resConf').innerText = data.confidence;
+                document.getElementById('resThresh').innerText = data.threshold_used;
+            } else {
+                resultBox.classList.add('error');
+                document.getElementById('resProb').innerText = 'Error';
+                document.getElementById('resRec').innerText = 'Fail';
+                document.getElementById('resRec').className = 'tag hold';
+                document.getElementById('resConf').innerText = data.detail ? JSON.stringify(data.detail) : 'Unknown error';
+                document.getElementById('resThresh').innerText = '--';
+            }
+            resultBox.style.display = 'block';
+
+        } catch (error) {
+            alert(`Connection Error: ${error.message}`);
+        } finally {
+            btn.innerText = "Live Predict ✨";
             btn.disabled = false;
         }
     }
