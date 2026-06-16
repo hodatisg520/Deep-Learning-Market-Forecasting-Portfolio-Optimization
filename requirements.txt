@@ -3,4 +3,6 @@ uvicorn
 pydantic
 numpy
 # Bỏ comment dòng dưới nếu bạn sử dụng mô hình TensorFlow thật (sẽ làm file build nặng hơn)
-# tensorflow-cpu
+tensorflow-cpu
+joblib
+scikit-learn

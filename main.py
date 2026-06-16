@@ -105,10 +105,10 @@ def load_models():
     try:
         import tensorflow as tf
 
-        buy_path = os.getenv("BUY_MODEL_PATH", "models/buy_model")
-        sell_path = os.getenv("SELL_MODEL_PATH", "models/sell_model")
-        buy_scaler_path = os.getenv("BUY_SCALER_PATH", "models/buy_scaler.pkl")
-        sell_scaler_path = os.getenv("SELL_SCALER_PATH", "models/sell_scaler.pkl")
+        buy_path = os.getenv("BUY_MODEL_PATH", "my_stock_models/buy_model")
+        sell_path = os.getenv("SELL_MODEL_PATH", "my_stock_models/sell_model")
+        buy_scaler_path = os.getenv("BUY_SCALER_PATH", "my_stock_models/buy_scaler.pkl")
+        sell_scaler_path = os.getenv("SELL_SCALER_PATH", "my_stock_models/sell_scaler.pkl")
 
         if os.path.exists(buy_path):
             buy_model = tf.saved_model.load(buy_path)
