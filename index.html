@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Prediction SaaS</title>
+    <title>AlphaQuant - Stock Prediction SaaS</title>
+    <meta name="description" content="AI-powered stock market prediction using Deep Learning LSTM models. Real-time Buy/Sell signal analysis.">
     <style>
         :root {
             --primary: #2563eb;
@@ -62,7 +63,7 @@
 
 <div class="container">
     <div class="card">
-        <h1>Stock Prediction SaaS</h1>
+        <h1>AlphaQuant - Stock Prediction</h1>
         <p style="text-align: center; color: var(--text-muted); margin-bottom: 30px;">Input the last 20 trading sessions to predict market signals.</p>
         
         <div class="tabs">
@@ -123,7 +124,7 @@
 </div>
 
 <script>
-    // Định nghĩa các cột đặc trưng theo đúng API /predict/buy và /predict/sell
+    // Feature column definitions matching the /predict/buy and /predict/sell API schemas
     const schemas = {
         buy: [
             "Open", "High", "Low", "Close", "Volume",
@@ -131,7 +132,7 @@
             "Log_Return", "priceToEarning", "cashDividendPercentage"
         ],
         sell: [
-            "Open", "High", "Low", "Volume",
+            "Open", "High", "Low", "Close", "Volume",
             "Log_Return", "Volatility_14", "SMA_14", "Dist_to_SMA",
             "RSI_14", "Dist_to_UB", "BB_Percent_B",
             "priceToEarning", "cashDividendPercentage"
@@ -146,7 +147,7 @@
         document.getElementById('tab-sell').classList.toggle('active', mode === 'sell');
         
         document.getElementById('table-info').innerText = mode === 'buy' ? 
-            'Buy Model (11 features)' : 'Sell Model (13 features)';
+            'Buy Model (11 features)' : 'Sell Model (14 features)';
         
         document.getElementById('resultBox').style.display = 'none';
         
@@ -208,7 +209,7 @@
                     val = 0.05;
                 }
                 
-                // Format với số thập phân hợp lý
+                // Format with appropriate decimal precision
                 let valStr = val.toFixed(4);
                 if (val > 1000) valStr = val.toFixed(1);
                 
@@ -242,7 +243,7 @@
         resultBox.className = 'result-card'; 
 
         const requestData = { features: getTableData() };
-        // Đường dẫn tới API của bạn trên Render
+        // API endpoint on Render cloud deployment
         const API_BASE_URL = 'https://deep-learning-market-forecasting-liyz.onrender.com';
         const endpoint = currentMode === 'buy' ? '/predict/buy' : '/predict/sell';
 
@@ -285,7 +286,7 @@
 
     async function makeLivePrediction() {
         const btn = document.querySelector('button[onclick="makeLivePrediction()"]');
-        const ticker = "SAM.VN"; // Hardcoded as user requested
+        const ticker = "SAM.VN"; // Default ticker for SAM Holdings on HOSE
 
         const resultBox = document.getElementById('resultBox');
         
@@ -349,4 +350,4 @@
 </script>
 
 </body>
-</html><!-- Force rebuild -->
+</html>

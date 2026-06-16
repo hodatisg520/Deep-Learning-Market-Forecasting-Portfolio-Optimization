@@ -58,17 +58,17 @@ class BuyPredictRequest(BaseModel):
 
 class SellPredictRequest(BaseModel):
     """
-    Input: 20 consecutive trading days, each with features for sell model:
-    [Open, High, Low, Volume, Log_Return, Volatility_14, SMA_14,
+    Input: 20 consecutive trading days, each with 14 features for sell model:
+    [Open, High, Low, Close, Volume, Log_Return, Volatility_14, SMA_14,
      Dist_to_SMA, RSI_14, Dist_to_UB, BB_Percent_B, priceToEarning, cashDividendPercentage]
     """
     features: List[List[float]] = Field(
         ...,
         min_items=20,
         max_items=20,
-        description="List of 20 rows, each row has 13 feature values",
+        description="List of 20 rows, each row has 14 feature values",
         example=[
-            [6000, 6200, 5800, 1200000, 0.012, 0.023, 6050, 0.008, 55.2, -0.03, 0.65, 15.3, 0.05]
+            [6000, 6200, 5800, 6100, 1200000, 0.012, 0.023, 6050, 0.008, 55.2, -0.03, 0.65, 15.3, 0.05]
         ] * 20,
     )
 
@@ -250,16 +250,16 @@ def predict_sell(request: SellPredictRequest):
     """
     Predict Sell Signal probability.
 
-    - **features**: 20 rows × 13 columns (20 trading days of data)
+    - **features**: 20 rows × 14 columns (20 trading days of data)
     - Returns probability ∈ [0,1] and SELL / HOLD recommendation
     """
     if len(request.features) != 20:
         raise HTTPException(status_code=422, detail="Exactly 20 time steps required.")
     for i, row in enumerate(request.features):
-        if len(row) != 13:
+        if len(row) != 14:
             raise HTTPException(
                 status_code=422,
-                detail=f"Row {i} must have 13 features, got {len(row)}.",
+                detail=f"Row {i} must have 14 features, got {len(row)}.",
             )
 
     try:
@@ -358,12 +358,12 @@ def buy_feature_schema():
 
 @app.get("/features/sell", tags=["Schema"])
 def sell_feature_schema():
-    """Describe the 13 input features expected by the sell model."""
+    """Describe the 14 input features expected by the sell model."""
     return {
         "time_steps": 20,
-        "n_features": 13,
+        "n_features": 14,
         "feature_names": [
-            "Open", "High", "Low", "Volume",
+            "Open", "High", "Low", "Close", "Volume",
             "Log_Return", "Volatility_14", "SMA_14", "Dist_to_SMA",
             "RSI_14", "Dist_to_UB", "BB_Percent_B",
             "priceToEarning", "cashDividendPercentage",

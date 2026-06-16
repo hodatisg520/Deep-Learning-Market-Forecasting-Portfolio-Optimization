@@ -133,8 +133,9 @@ class StockPredictor:
         logger.info("Running TensorFlow inference...")
         
         tensor_input = tf.constant(x_input)
-        result = self.model(tensor_input)
-        probability = float(result.numpy().flatten()[0])
+        infer = self.model.signatures['serving_default']
+        result = infer(tensor_input)
+        probability = float(list(result.values())[0].numpy().flatten()[0])
         
         recommendation = "BUY" if probability >= 0.4 else "IGNORE"
         logger.info(f"Prediction complete. Prob: {probability:.4f} | Action: {recommendation}")

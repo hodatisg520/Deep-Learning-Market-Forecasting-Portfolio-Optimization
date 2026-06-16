@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyc
 
 # OS generated files
 .DS_Store
@@ -20,3 +21,9 @@ ENV/
 # IDE files
 .vscode/
 .idea/
+
+# Python version manager
+.python-version
+
+# Learning materials (local study files, not for version control)
+learning_materials/
