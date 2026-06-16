@@ -11,6 +11,7 @@ import numpy as np
 import uvicorn
 import os
 import logging
+import joblib
 
 # ── Logging ────────────────────────────────────────────────────────────────────
 logging.basicConfig(level=logging.INFO)
@@ -99,24 +100,32 @@ def get_confidence(prob: float) -> str:
 
 
 def load_models():
-    """Load models from disk (called at startup)."""
-    global buy_model, sell_model
+    """Load models and scalers from disk (called at startup)."""
+    global buy_model, sell_model, buy_scaler, sell_scaler
 
     try:
         import tensorflow as tf
 
         buy_path = os.getenv("BUY_MODEL_PATH", "models/buy_model")
         sell_path = os.getenv("SELL_MODEL_PATH", "models/sell_model")
+        buy_scaler_path = os.getenv("BUY_SCALER_PATH", "models/buy_scaler.pkl")
+        sell_scaler_path = os.getenv("SELL_SCALER_PATH", "models/sell_scaler.pkl")
 
         if os.path.exists(buy_path):
             buy_model = tf.saved_model.load(buy_path)
             logger.info(f"✅ Buy model loaded from {buy_path}")
+            if os.path.exists(buy_scaler_path):
+                buy_scaler = joblib.load(buy_scaler_path)
+                logger.info("✅ Buy scaler loaded.")
         else:
             logger.warning(f"⚠️  Buy model not found at {buy_path}. Using mock.")
 
         if os.path.exists(sell_path):
             sell_model = tf.saved_model.load(sell_path)
             logger.info(f"✅ Sell model loaded from {sell_path}")
+            if os.path.exists(sell_scaler_path):
+                sell_scaler = joblib.load(sell_scaler_path)
+                logger.info("✅ Sell scaler loaded.")
         else:
             logger.warning(f"⚠️  Sell model not found at {sell_path}. Using mock.")
 
@@ -127,21 +136,33 @@ def load_models():
 def mock_predict(features: list, seed: int = 42) -> float:
     """
     Mock inference when real model is not available.
-    Returns a deterministic pseudo-probability based on input mean.
+    Uses a hash of the input to return a deterministic pseudo-probability.
     """
     arr = np.array(features, dtype=np.float32)
-    val = float(np.tanh(arr.mean() * 0.001) * 0.5 + 0.5)
+    # Avoid saturation from large values like Volume by taking modulo
+    pseudo_hash = np.sum(arr) % 100
+    val = (pseudo_hash / 100.0) * 0.6 + 0.2 # Range [0.2, 0.8]
     return round(val, 4)
 
 
-def run_inference(model, features: list, input_shape: tuple) -> float:
-    """Run real TF inference or fall back to mock."""
+def run_inference(model, scaler, features: list, input_shape: tuple) -> float:
+    """Run real TF inference with scaling, or fall back to mock."""
     if model is None:
         return mock_predict(features)
 
     try:
         import tensorflow as tf
-        x = np.array(features, dtype=np.float32).reshape(1, *input_shape)
+        x = np.array(features, dtype=np.float32)
+        
+        # Apply scaler if available to prevent saturation (Training-Serving Skew)
+        if scaler is not None:
+            # Reshape to 2D for scaling, then back to 3D
+            x_2d = x.reshape(-1, input_shape[1])
+            x_scaled = scaler.transform(x_2d)
+            x = x_scaled.reshape(1, *input_shape)
+        else:
+            x = x.reshape(1, *input_shape)
+            
         tensor = tf.constant(x)
         result = model(tensor)
         prob = float(result.numpy().flatten()[0])
@@ -199,7 +220,7 @@ def predict_buy(request: BuyPredictRequest):
             )
 
     BUY_THRESHOLD = float(os.getenv("BUY_THRESHOLD", "0.40"))
-    prob = run_inference(buy_model, request.features, input_shape=(20, 11))
+    prob = run_inference(buy_model, buy_scaler, request.features, input_shape=(20, 11))
     recommendation = "BUY" if prob >= BUY_THRESHOLD else "IGNORE"
 
     return PredictionResponse(
@@ -229,7 +250,7 @@ def predict_sell(request: SellPredictRequest):
             )
 
     SELL_THRESHOLD = float(os.getenv("SELL_THRESHOLD", "0.50"))
-    prob = run_inference(sell_model, request.features, input_shape=(20, 13))
+    prob = run_inference(sell_model, sell_scaler, request.features, input_shape=(20, 13))
     recommendation = "SELL" if prob >= SELL_THRESHOLD else "HOLD"
 
     return PredictionResponse(
