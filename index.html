@@ -71,12 +71,12 @@
         </div>
 
         <!-- NEW LIVE PREDICT UI -->
-        <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; border: 1px solid var(--border-color);">
-            <div style="flex-grow: 1;">
-                <label for="liveTicker" style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 5px;">LIVE YAHOO FINANCE DATA</label>
-                <input type="text" id="liveTicker" placeholder="Enter Ticker (e.g. SAM.VN, FPT.VN)" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 1rem; box-sizing: border-box;">
+        <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; border: 1px solid var(--border-color); justify-content: space-between;">
+            <div>
+                <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 5px;">LIVE YAHOO FINANCE DATA</div>
+                <div style="font-size: 1.1rem; font-weight: bold; color: var(--primary);">Ticker: SAM.VN</div>
             </div>
-            <button onclick="makeLivePrediction()" style="background-color: #10b981; min-width: 150px; align-self: flex-end; height: 42px;">Live Predict ✨</button>
+            <button onclick="makeLivePrediction()" style="background-color: #10b981; min-width: 150px; height: 42px;">Live Predict ✨</button>
         </div>
 
         <div class="controls">
@@ -285,11 +285,7 @@
 
     async function makeLivePrediction() {
         const btn = document.querySelector('button[onclick="makeLivePrediction()"]');
-        const ticker = document.getElementById('liveTicker').value.trim();
-        if (!ticker) {
-            alert("Please enter a ticker symbol! (e.g., SAM.VN)");
-            return;
-        }
+        const ticker = "SAM.VN"; // Hardcoded as user requested
 
         const resultBox = document.getElementById('resultBox');
         

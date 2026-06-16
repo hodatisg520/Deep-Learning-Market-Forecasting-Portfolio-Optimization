@@ -156,12 +156,27 @@ def run_inference(model, scaler, features: list, input_shape: tuple) -> float:
     
     # Apply scaler (Training-Serving Skew Prevention)
     x_2d = x.reshape(-1, input_shape[1])
-    x_scaled = scaler.transform(x_2d)
-    x = x_scaled.reshape(1, *input_shape)
+    
+    # Check if the scaler expects more features (e.g. 14) and pad with zeros
+    expected_features = getattr(scaler, "n_features_in_", input_shape[1])
+    pad_width = expected_features - x_2d.shape[1]
+    
+    if pad_width > 0:
+        padding = np.zeros((x_2d.shape[0], pad_width))
+        x_2d_padded = np.hstack((x_2d, padding))
+        x_scaled_padded = scaler.transform(x_2d_padded)
+        x_scaled = x_scaled_padded[:, :input_shape[1]]
+    else:
+        x_scaled = scaler.transform(x_2d)
+        
+    x = x_scaled.reshape(1, *input_shape).astype(np.float32)
         
     tensor = tf.constant(x)
-    result = model(tensor)
-    prob = float(result.numpy().flatten()[0])
+    
+    # Call using serving_default signature to avoid _UserObject callable errors
+    infer = model.signatures['serving_default']
+    result = infer(tensor)
+    prob = float(list(result.values())[0].numpy().flatten()[0])
     return round(prob, 4)
 
 
