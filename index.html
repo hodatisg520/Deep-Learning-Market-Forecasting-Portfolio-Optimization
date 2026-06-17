@@ -283,6 +283,41 @@
             color: var(--text-secondary);
         }
 
+        .guide {
+            margin-bottom: 20px;
+            padding: 14px 16px;
+            background: #fafafa;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+        }
+        .guide-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 8px;
+        }
+        .guide ol {
+            padding-left: 18px;
+            font-size: 0.8125rem;
+            color: var(--text);
+            line-height: 1.7;
+        }
+        .guide ol li { margin-bottom: 2px; }
+
+        .note {
+            margin-top: 16px;
+            padding: 10px 14px;
+            background: #fffbeb;
+            border: 1px solid #f0dca0;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: #92650a;
+            line-height: 1.6;
+        }
+        .note strong { font-weight: 600; }
+
         @media (max-width: 640px) {
             .toolbar { flex-direction: column; align-items: stretch; }
             .toolbar-left { justify-content: space-between; }
@@ -294,11 +329,20 @@
 
 <div class="wrapper">
     <div class="header">
-        <h1>AlphaQuant</h1>
+        <h1>AlphaQuant: Deep Learning for Market Forecasting and Portfolio Optimization</h1>
         <p>LSTM-based stock signal prediction with live market data</p>
     </div>
 
-    <div class="card">
+    <div class="card">        <!-- Usage Guide -->
+        <div class="guide">
+            <div class="guide-title">How to use</div>
+            <ol>
+                <li>Select a model tab above: <strong>Buy Signal</strong> or <strong>Sell Signal</strong></li>
+                <li>Click <strong>Upload Live Data</strong> to fetch the latest 20 trading days from Yahoo Finance for SAM.VN</li>
+                <li>Review the data in the table below, then click <strong>Predict Signal</strong> to run the AI model</li>
+            </ol>
+        </div>
+
         <!-- Model Tabs -->
         <div class="tabs">
             <div class="tab active" onclick="switchTab('buy')" id="tab-buy">Buy Signal</div>
@@ -352,6 +396,10 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="note">
+        <strong>Note:</strong> The API is hosted on Render's free tier. If the server has been inactive, the first request may take 30-60 seconds to respond while the service restarts (cold start). Subsequent requests will be fast. If you get a connection error, please wait a moment and try again.
     </div>
 
     <div class="footer">
