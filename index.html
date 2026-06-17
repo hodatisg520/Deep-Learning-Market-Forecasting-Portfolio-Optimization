@@ -1,130 +1,368 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AlphaQuant - Stock Prediction SaaS</title>
-    <meta name="description" content="AI-powered stock market prediction using Deep Learning LSTM models. Real-time Buy/Sell signal analysis.">
+    <title>AlphaQuant — Stock Signal Prediction</title>
+    <meta name="description" content="Deep Learning LSTM models for stock market Buy/Sell signal prediction. Real-time data from Yahoo Finance.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border-color: #e2e8f0;
-            --success-bg: #ecfdf5;
-            --success-text: #059669;
-            --error-bg: #fef2f2;
-            --error-text: #dc2626;
-        }
-        body { font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; }
-        .container { max-width: 1100px; margin: auto; }
-        .card { background: var(--card-bg); padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06); }
-        h1 { text-align: center; margin-top: 0; color: #1e293b; }
-        
-        .tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid var(--border-color); }
-        .tab { padding: 12px 24px; cursor: pointer; font-weight: 600; color: var(--text-muted); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s; }
-        .tab:hover { color: var(--primary); }
-        .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
-        
-        .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        button { background-color: var(--primary); color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; transition: background-color 0.2s; }
-        button:hover { background-color: var(--primary-hover); }
-        button.secondary { background-color: white; color: var(--primary); border: 1px solid var(--primary); }
-        button.secondary:hover { background-color: #eff6ff; }
-        button:disabled { opacity: 0.7; cursor: not-allowed; }
-        
-        .table-container { overflow-x: auto; margin-bottom: 20px; border: 1px solid var(--border-color); border-radius: 8px; max-height: 400px; overflow-y: auto; }
-        table { width: 100%; border-collapse: collapse; text-align: right; font-variant-numeric: tabular-nums; }
-        th, td { padding: 6px 10px; border-bottom: 1px solid var(--border-color); }
-        th { background-color: #f1f5f9; font-weight: 600; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; text-align: right; position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 0 var(--border-color); }
-        td input { width: 70px; padding: 4px; border: 1px solid transparent; border-radius: 4px; text-align: right; font-family: inherit; font-size: 0.9rem; }
-        td input:focus { border-color: var(--primary); outline: none; background: #fff; box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2); }
-        tr:hover { background-color: #f8fafc; }
-        td:first-child, th:first-child { text-align: center; background-color: #f1f5f9; font-weight: bold; width: 40px; position: sticky; left: 0; z-index: 5; box-shadow: 1px 0 0 var(--border-color); }
-        th:first-child { z-index: 15; }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .result-card { margin-top: 25px; padding: 20px; border-radius: 8px; display: none; border: 1px solid; }
-        .result-card.success { background-color: var(--success-bg); border-color: #a7f3d0; }
-        .result-card.error { background-color: var(--error-bg); border-color: #fecaca; }
-        .tag { padding: 4px 12px; border-radius: 9999px; font-weight: bold; font-size: 0.9rem; display: inline-block; }
-        .tag.buy, .tag.sell { background-color: var(--success-text); color: white; }
-        .tag.ignore, .tag.hold { background-color: var(--text-muted); color: white; }
-        
-        .prediction-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
-        .stat-box { background: rgba(255,255,255,0.6); padding: 15px; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .stat-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; font-weight: 600; }
-        .stat-value { font-size: 1.5rem; font-weight: bold; color: var(--text-main); }
+        :root {
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --bg: #f5f5f7;
+            --surface: #ffffff;
+            --text: #1d1d1f;
+            --text-secondary: #6e6e73;
+            --border: #d2d2d7;
+            --accent: #0071e3;
+            --accent-hover: #0060c0;
+            --success: #248a3d;
+            --success-bg: #f0faf3;
+            --success-border: #c6e6d0;
+            --danger: #d12f2f;
+            --danger-bg: #fef5f5;
+            --danger-border: #f5d0d0;
+            --neutral-bg: #f5f5f7;
+            --radius: 8px;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Layout */
+        .wrapper { max-width: 1120px; margin: 0 auto; padding: 32px 20px; }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text);
+        }
+        .header p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 6px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+        .tab {
+            padding: 10px 20px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: color 0.15s, border-color 0.15s;
+            user-select: none;
+        }
+        .tab:hover { color: var(--text); }
+        .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .toolbar-left { display: flex; gap: 8px; align-items: center; }
+        .toolbar-info {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            font-family: var(--font);
+            font-size: 0.8125rem;
+            font-weight: 500;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.15s, opacity 0.15s;
+            white-space: nowrap;
+        }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .btn-primary { background: var(--accent); color: #fff; }
+        .btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+        .btn-outline:hover:not(:disabled) { background: var(--neutral-bg); color: var(--text); }
+
+        .btn-predict {
+            width: 100%;
+            padding: 12px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-top: 16px;
+            background: var(--text);
+            color: #fff;
+            border-radius: 6px;
+        }
+        .btn-predict:hover:not(:disabled) { background: #333; }
+
+        /* Status bar */
+        .status-bar {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            margin-bottom: 16px;
+            border-radius: 6px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+        }
+        .status-bar.visible { display: flex; }
+        .status-bar.info { background: #eef4ff; color: #1a56db; border: 1px solid #c3d9f7; }
+        .status-bar.success { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+        .status-bar.error { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+        .status-dot {
+            width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+        }
+        .status-bar.info .status-dot { background: #1a56db; }
+        .status-bar.success .status-dot { background: var(--success); }
+        .status-bar.error .status-dot { background: var(--danger); }
+
+        /* Table */
+        .table-wrap {
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: auto;
+            max-height: 380px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-variant-numeric: tabular-nums;
+            font-size: 0.8125rem;
+        }
+        th, td { padding: 6px 10px; text-align: right; border-bottom: 1px solid #ebebed; }
+        th {
+            background: #fafafa;
+            font-weight: 600;
+            font-size: 0.6875rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        td:first-child, th:first-child {
+            text-align: center;
+            background: #fafafa;
+            font-weight: 600;
+            width: 36px;
+            position: sticky;
+            left: 0;
+            z-index: 5;
+        }
+        th:first-child { z-index: 15; }
+        td input {
+            width: 72px;
+            padding: 3px 4px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            text-align: right;
+            font-family: var(--font);
+            font-size: 0.8125rem;
+            background: transparent;
+            color: var(--text);
+        }
+        td input:focus {
+            border-color: var(--accent);
+            outline: none;
+            background: #fff;
+            box-shadow: 0 0 0 2px rgba(0,113,227,0.15);
+        }
+        tr:hover td { background: #fafafa; }
+        tr:hover td:first-child { background: #f0f0f2; }
+
+        /* Result */
+        .result {
+            display: none;
+            margin-top: 24px;
+            padding: 20px;
+            border-radius: var(--radius);
+            border: 1px solid;
+        }
+        .result.show { display: block; }
+        .result.success { background: var(--success-bg); border-color: var(--success-border); }
+        .result.error { background: var(--danger-bg); border-color: var(--danger-border); }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .result-title {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .result-tag {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .result-tag.buy, .result-tag.sell { background: var(--success); color: #fff; }
+        .result-tag.ignore, .result-tag.hold { background: var(--text-secondary); color: #fff; }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        .result-metric {
+            background: rgba(255,255,255,0.7);
+            padding: 14px;
+            border-radius: 6px;
+        }
+        .result-metric-label {
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 4px;
+        }
+        .result-metric-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 640px) {
+            .toolbar { flex-direction: column; align-items: stretch; }
+            .toolbar-left { justify-content: space-between; }
+            .result-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div class="wrapper">
+    <div class="header">
+        <h1>AlphaQuant</h1>
+        <p>LSTM-based stock signal prediction with live market data</p>
+    </div>
+
     <div class="card">
-        <h1>AlphaQuant - Stock Prediction</h1>
-        <p style="text-align: center; color: var(--text-muted); margin-bottom: 30px;">Input the last 20 trading sessions to predict market signals.</p>
-        
+        <!-- Model Tabs -->
         <div class="tabs">
-            <div class="tab active" onclick="switchTab('buy')" id="tab-buy">Buy Signal Model</div>
-            <div class="tab" onclick="switchTab('sell')" id="tab-sell">Sell Signal Model</div>
+            <div class="tab active" onclick="switchTab('buy')" id="tab-buy">Buy Signal</div>
+            <div class="tab" onclick="switchTab('sell')" id="tab-sell">Sell Signal</div>
         </div>
 
-        <!-- NEW LIVE PREDICT UI -->
-        <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; border: 1px solid var(--border-color); justify-content: space-between;">
-            <div>
-                <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 5px;">LIVE YAHOO FINANCE DATA</div>
-                <div style="font-size: 1.1rem; font-weight: bold; color: var(--primary);">Ticker: SAM.VN</div>
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <button class="btn btn-primary" id="uploadBtn" onclick="uploadLiveData()">Upload Live Data</button>
+                <button class="btn btn-outline" onclick="loadSampleData()">Sample Data</button>
             </div>
-            <button onclick="makeLivePrediction()" style="background-color: #10b981; min-width: 150px; height: 42px;">Live Predict ✨</button>
+            <span class="toolbar-info" id="tableInfo">SAM.VN &middot; Buy Model &middot; 11 features</span>
         </div>
 
-        <div class="controls">
-            <button class="secondary" onclick="loadSampleData()">Load Sample Data (Manual)</button>
-            <span style="font-size: 0.9rem; color: var(--text-muted); font-weight: 500;" id="table-info">Buy Model (11 features)</span>
+        <!-- Status Bar -->
+        <div class="status-bar" id="statusBar">
+            <span class="status-dot"></span>
+            <span id="statusText"></span>
         </div>
 
-        <div class="table-container">
-            <table id="dataTable">
-                <thead id="dataHead">
-                    <!-- Generated via JS -->
-                </thead>
-                <tbody id="dataBody">
-                    <!-- Generated via JS -->
-                </tbody>
+        <!-- Data Table -->
+        <div class="table-wrap">
+            <table>
+                <thead id="dataHead"></thead>
+                <tbody id="dataBody"></tbody>
             </table>
         </div>
-        
-        <button id="predictBtn" onclick="makePrediction()" style="width: 100%; font-size: 1.1rem; padding: 15px; margin-top: 10px;">Predict Signal</button>
 
-        <div id="resultBox" class="result-card">
-            <h3 style="margin-top: 0; margin-bottom: 15px; color: #1e293b;" id="resultTitle">Analysis Result:</h3>
-            <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                <span class="stat-label" style="margin-bottom: 0;">Recommendation:</span>
-                <span id="resRec" class="tag"></span>
+        <!-- Predict Button -->
+        <button class="btn btn-predict" id="predictBtn" onclick="runPrediction()">Predict Signal</button>
+
+        <!-- Result Card -->
+        <div class="result" id="resultBox">
+            <div class="result-header">
+                <span class="result-title">Prediction Result</span>
+                <span class="result-tag" id="resRec"></span>
             </div>
-            
-            <div class="prediction-details">
-                <div class="stat-box">
-                    <div class="stat-label">Probability</div>
-                    <div class="stat-value" id="resProb">--</div>
+            <div class="result-grid">
+                <div class="result-metric">
+                    <div class="result-metric-label">Probability</div>
+                    <div class="result-metric-value" id="resProb">--</div>
                 </div>
-                <div class="stat-box">
-                    <div class="stat-label">Confidence</div>
-                    <div class="stat-value" id="resConf">--</div>
+                <div class="result-metric">
+                    <div class="result-metric-label">Confidence</div>
+                    <div class="result-metric-value" id="resConf">--</div>
                 </div>
-                <div class="stat-box">
-                    <div class="stat-label">Threshold</div>
-                    <div class="stat-value" id="resThresh" style="font-size: 1.25rem;">--</div>
+                <div class="result-metric">
+                    <div class="result-metric-label">Threshold</div>
+                    <div class="result-metric-value" id="resThresh">--</div>
                 </div>
             </div>
         </div>
     </div>
+
+    <div class="footer">
+        AlphaQuant &middot; Deep Learning Market Forecasting &middot; Nguyen Hong Dang
+    </div>
 </div>
 
 <script>
-    // Feature column definitions matching the /predict/buy and /predict/sell API schemas
+    const API_BASE = 'https://deep-learning-market-forecasting-liyz.onrender.com';
+    const TICKER = 'SAM.VN';
+
     const schemas = {
         buy: [
             "Open", "High", "Low", "Close", "Volume",
@@ -140,213 +378,204 @@
     };
 
     let currentMode = 'buy';
+    let liveDataLoaded = false;
+
+    // -- UI Helpers --
+
+    function showStatus(type, message) {
+        const bar = document.getElementById('statusBar');
+        bar.className = `status-bar visible ${type}`;
+        document.getElementById('statusText').textContent = message;
+    }
+
+    function hideStatus() {
+        document.getElementById('statusBar').className = 'status-bar';
+    }
+
+    function updateTableInfo() {
+        const n = schemas[currentMode].length;
+        const label = currentMode === 'buy' ? 'Buy Model' : 'Sell Model';
+        document.getElementById('tableInfo').textContent = `${TICKER}  \u00b7  ${label}  \u00b7  ${n} features`;
+    }
+
+    // -- Tab Switching --
 
     function switchTab(mode) {
         currentMode = mode;
+        liveDataLoaded = false;
         document.getElementById('tab-buy').classList.toggle('active', mode === 'buy');
         document.getElementById('tab-sell').classList.toggle('active', mode === 'sell');
-        
-        document.getElementById('table-info').innerText = mode === 'buy' ? 
-            'Buy Model (11 features)' : 'Sell Model (14 features)';
-        
-        document.getElementById('resultBox').style.display = 'none';
-        
+        document.getElementById('resultBox').className = 'result';
+        hideStatus();
+        updateTableInfo();
         renderTable();
-        loadSampleData();
     }
 
+    // -- Table Rendering --
+
     function renderTable() {
-        const columns = schemas[currentMode];
+        const cols = schemas[currentMode];
         const thead = document.getElementById('dataHead');
         const tbody = document.getElementById('dataBody');
-        
-        // Header
-        let headHtml = '<tr><th>Day</th>';
-        columns.forEach(col => {
-            headHtml += `<th>${col.replace(/_/g, ' ')}</th>`;
-        });
+
+        let headHtml = '<tr><th>#</th>';
+        cols.forEach(c => { headHtml += `<th>${c.replace(/_/g, ' ')}</th>`; });
         headHtml += '</tr>';
         thead.innerHTML = headHtml;
 
-        // Body (20 rows)
         let bodyHtml = '';
-        for (let i = 1; i <= 20; i++) {
-            bodyHtml += `<tr><td>${i}</td>`;
-            columns.forEach((col, j) => {
-                bodyHtml += `<td><input type="number" step="any" id="cell-${i-1}-${j}" value="0"></td>`;
+        for (let i = 0; i < 20; i++) {
+            bodyHtml += `<tr><td>${i + 1}</td>`;
+            cols.forEach((_, j) => {
+                bodyHtml += `<td><input type="number" step="any" id="c-${i}-${j}" value="0"></td>`;
             });
             bodyHtml += '</tr>';
         }
         tbody.innerHTML = bodyHtml;
     }
 
+    // -- Sample Data --
+
     function loadSampleData() {
-        const columns = schemas[currentMode];
-        let baseOpen = 6000;
-        
+        liveDataLoaded = false;
+        hideStatus();
+        document.getElementById('resultBox').className = 'result';
+
+        const cols = schemas[currentMode];
+        let base = 6000;
+
         for (let i = 0; i < 20; i++) {
-            baseOpen += (Math.random() - 0.4) * 100; // random walk
-            
-            for (let j = 0; j < columns.length; j++) {
-                const colName = columns[j];
-                let val = 0;
-                
-                if (colName === "Open" || colName === "Close" || colName === "SMA_14" || colName === "High" || colName === "Low") {
-                    val = baseOpen + (Math.random() - 0.5) * 50;
-                    if(colName === "High") val += 50;
-                    if(colName === "Low") val -= 50;
-                } else if (colName === "Volume") {
-                    val = Math.floor(1000000 + Math.random() * 500000);
-                } else if (colName === "RSI_14") {
-                    val = 40 + Math.random() * 40;
-                } else if (colName === "Log_Return" || colName === "Volatility_14" || colName === "Dist_to_SMA" || colName === "Dist_to_UB") {
-                    val = (Math.random() - 0.5) * 0.05;
-                } else if (colName === "BB_Percent_B") {
-                    val = Math.random();
-                } else if (colName === "priceToEarning") {
-                    val = 15 + Math.random() * 2;
-                } else if (colName === "cashDividendPercentage") {
-                    val = 0.05;
+            base += (Math.random() - 0.4) * 100;
+            for (let j = 0; j < cols.length; j++) {
+                const name = cols[j];
+                let v = 0;
+                if (['Open','Close','SMA_14','High','Low'].includes(name)) {
+                    v = base + (Math.random() - 0.5) * 50;
+                    if (name === 'High') v += 50;
+                    if (name === 'Low') v -= 50;
+                } else if (name === 'Volume') {
+                    v = Math.floor(1e6 + Math.random() * 5e5);
+                } else if (name === 'RSI_14') {
+                    v = 40 + Math.random() * 40;
+                } else if (['Log_Return','Volatility_14','Dist_to_SMA','Dist_to_UB'].includes(name)) {
+                    v = (Math.random() - 0.5) * 0.05;
+                } else if (name === 'BB_Percent_B') {
+                    v = Math.random();
+                } else if (name === 'priceToEarning') {
+                    v = 15 + Math.random() * 2;
+                } else if (name === 'cashDividendPercentage') {
+                    v = 0.05;
                 }
-                
-                // Format with appropriate decimal precision
-                let valStr = val.toFixed(4);
-                if (val > 1000) valStr = val.toFixed(1);
-                
-                document.getElementById(`cell-${i}-${j}`).value = valStr;
+                document.getElementById(`c-${i}-${j}`).value = v > 1000 ? v.toFixed(1) : v.toFixed(4);
             }
         }
+        showStatus('info', 'Sample data loaded. Click "Predict Signal" to run inference.');
     }
 
+    // -- Read Table Data --
+
     function getTableData() {
-        const columns = schemas[currentMode];
+        const cols = schemas[currentMode];
         const data = [];
         for (let i = 0; i < 20; i++) {
             const row = [];
-            for (let j = 0; j < columns.length; j++) {
-                const val = parseFloat(document.getElementById(`cell-${i}-${j}`).value) || 0;
-                row.push(val);
+            for (let j = 0; j < cols.length; j++) {
+                row.push(parseFloat(document.getElementById(`c-${i}-${j}`).value) || 0);
             }
             data.push(row);
         }
         return data;
     }
 
-    async function makePrediction() {
-        const btn = document.getElementById('predictBtn');
-        const resultBox = document.getElementById('resultBox');
-        
-        // Reset UI
-        btn.innerText = "Processing...";
-        btn.disabled = true;
-        resultBox.style.display = 'none';
-        resultBox.className = 'result-card'; 
+    // -- Upload Live Data (fetch only, no prediction) --
 
-        const requestData = { features: getTableData() };
-        // API endpoint on Render cloud deployment
-        const API_BASE_URL = 'https://deep-learning-market-forecasting-liyz.onrender.com';
-        const endpoint = currentMode === 'buy' ? '/predict/buy' : '/predict/sell';
+    async function uploadLiveData() {
+        const btn = document.getElementById('uploadBtn');
+        btn.textContent = 'Loading...';
+        btn.disabled = true;
+        hideStatus();
+        document.getElementById('resultBox').className = 'result';
 
         try {
-            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            const res = await fetch(`${API_BASE}/predict/live`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(requestData)
+                body: JSON.stringify({ ticker: TICKER, mode: currentMode })
             });
+            const data = await res.json();
 
-            const data = await response.json();
-
-            if (response.ok) {
-                resultBox.classList.add('success');
-                document.getElementById('resProb').innerText = (data.probability * 100).toFixed(2) + '%';
-                
-                const recSpan = document.getElementById('resRec');
-                recSpan.innerText = data.recommendation;
-                recSpan.className = `tag ${data.recommendation.toLowerCase()}`;
-                
-                document.getElementById('resConf').innerText = data.confidence;
-                document.getElementById('resThresh').innerText = data.threshold_used;
-            } else {
-                resultBox.classList.add('error');
-                document.getElementById('resProb').innerText = 'Error';
-                document.getElementById('resRec').innerText = 'Invalid Data';
-                document.getElementById('resRec').className = 'tag hold';
-                document.getElementById('resConf').innerText = data.detail ? JSON.stringify(data.detail) : 'Unknown error';
-                document.getElementById('resThresh').innerText = '--';
-            }
-            resultBox.style.display = 'block';
-
-        } catch (error) {
-            alert(`Connection Error: ${error.message}\nMake sure the backend API is running on port 8000 (uvicorn main:app --reload)`);
-        } finally {
-            btn.innerText = "Predict Signal";
-            btn.disabled = false;
-        }
-    }
-
-    async function makeLivePrediction() {
-        const btn = document.querySelector('button[onclick="makeLivePrediction()"]');
-        const ticker = "SAM.VN"; // Default ticker for SAM Holdings on HOSE
-
-        const resultBox = document.getElementById('resultBox');
-        
-        btn.innerText = "Fetching...";
-        btn.disabled = true;
-        resultBox.style.display = 'none';
-        resultBox.className = 'result-card'; 
-
-        const API_BASE_URL = 'https://deep-learning-market-forecasting-liyz.onrender.com';
-        // const API_BASE_URL = 'http://localhost:8000'; // Uncomment to test locally
-
-        try {
-            const response = await fetch(`${API_BASE_URL}/predict/live`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ticker: ticker, mode: currentMode })
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                // Update table with the fetched features
-                const features_used = data.features_used;
+            if (res.ok && data.features_used) {
+                const features = data.features_used;
+                const cols = schemas[currentMode];
                 for (let i = 0; i < 20; i++) {
-                    for (let j = 0; j < schemas[currentMode].length; j++) {
-                        let val = features_used[i][j] || 0;
-                        document.getElementById(`cell-${i}-${j}`).value = val.toFixed(4);
+                    for (let j = 0; j < cols.length; j++) {
+                        const v = features[i][j] || 0;
+                        document.getElementById(`c-${i}-${j}`).value = v > 1000 ? v.toFixed(1) : v.toFixed(4);
                     }
                 }
-
-                resultBox.classList.add('success');
-                document.getElementById('resProb').innerText = (data.probability * 100).toFixed(2) + '%';
-                
-                const recSpan = document.getElementById('resRec');
-                recSpan.innerText = data.recommendation;
-                recSpan.className = `tag ${data.recommendation.toLowerCase()}`;
-                
-                document.getElementById('resConf').innerText = data.confidence;
-                document.getElementById('resThresh').innerText = data.threshold_used;
+                liveDataLoaded = true;
+                showStatus('success', `Live data loaded for ${TICKER}. Review the table, then click "Predict Signal".`);
             } else {
-                resultBox.classList.add('error');
-                document.getElementById('resProb').innerText = 'Error';
-                document.getElementById('resRec').innerText = 'Fail';
-                document.getElementById('resRec').className = 'tag hold';
-                document.getElementById('resConf').innerText = data.detail ? JSON.stringify(data.detail) : 'Unknown error';
-                document.getElementById('resThresh').innerText = '--';
+                showStatus('error', data.detail || 'Failed to fetch live data.');
             }
-            resultBox.style.display = 'block';
-
-        } catch (error) {
-            alert(`Connection Error: ${error.message}`);
+        } catch (err) {
+            showStatus('error', `Connection failed: ${err.message}`);
         } finally {
-            btn.innerText = "Live Predict ✨";
+            btn.textContent = 'Upload Live Data';
             btn.disabled = false;
         }
     }
 
-    // Initialize application
+    // -- Run Prediction (uses table data) --
+
+    async function runPrediction() {
+        const btn = document.getElementById('predictBtn');
+        const resultBox = document.getElementById('resultBox');
+
+        btn.textContent = 'Processing...';
+        btn.disabled = true;
+        resultBox.className = 'result';
+
+        const endpoint = currentMode === 'buy' ? '/predict/buy' : '/predict/sell';
+        const payload = { features: getTableData() };
+
+        try {
+            const res = await fetch(`${API_BASE}${endpoint}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+                resultBox.className = 'result show success';
+                document.getElementById('resProb').textContent = (data.probability * 100).toFixed(2) + '%';
+                const tag = document.getElementById('resRec');
+                tag.textContent = data.recommendation;
+                tag.className = `result-tag ${data.recommendation.toLowerCase()}`;
+                document.getElementById('resConf').textContent = data.confidence;
+                document.getElementById('resThresh').textContent = data.threshold_used;
+                hideStatus();
+            } else {
+                resultBox.className = 'result show error';
+                document.getElementById('resProb').textContent = '--';
+                const tag = document.getElementById('resRec');
+                tag.textContent = 'Error';
+                tag.className = 'result-tag hold';
+                document.getElementById('resConf').textContent = data.detail || 'Unknown error';
+                document.getElementById('resThresh').textContent = '--';
+            }
+        } catch (err) {
+            showStatus('error', `Connection failed: ${err.message}`);
+        } finally {
+            btn.textContent = 'Predict Signal';
+            btn.disabled = false;
+        }
+    }
+
+    // -- Initialize --
     renderTable();
-    loadSampleData();
+    updateTableInfo();
 </script>
 
 </body>
